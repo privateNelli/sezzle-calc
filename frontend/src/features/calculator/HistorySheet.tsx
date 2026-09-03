@@ -35,7 +35,7 @@ export function HistorySheet({ open, entries, onClose, onRecall, onClear }: Hist
   return (
     <div className="history-sheet">
       <button type="button" className="sheet-backdrop" aria-label="Dismiss history" onClick={onClose} />
-      <section className="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="history-title">
+      <section className="bottom-sheet history-panel" role="dialog" aria-modal="true" aria-labelledby="history-title">
         <div className="sheet-handle" aria-hidden="true" />
         <CalculatorHistory
           entries={entries}
