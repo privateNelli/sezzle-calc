@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { CalculatorForm } from './features/calculator/CalculatorForm'
+import { Calculator } from './features/calculator/Calculator'
 import { getOperations, type Operation } from './features/calculator/api'
 import './App.css'
 
@@ -16,25 +16,18 @@ function App() {
 
   return (
     <main className="page-shell">
-      <section className="calculator-card" aria-labelledby="page-title">
-        <header>
-          <p className="eyebrow">Sezzle Calculator Homework</p>
-          <h1 id="page-title">Calculator</h1>
-          <p className="intro">Choose an operation, enter your values, and let the Go service do the math.</p>
-        </header>
-
-        {error ? (
-          <p className="message error" role="alert">
-            {error}
-          </p>
-        ) : operations.length === 0 ? (
-          <p className="message" role="status">
-            Loading operations…
-          </p>
-        ) : (
-          <CalculatorForm operations={operations} />
-        )}
-      </section>
+      <h1 className="visually-hidden">Calculator</h1>
+      {error ? (
+        <p className="message error" role="alert">
+          {error}
+        </p>
+      ) : operations.length === 0 ? (
+        <p className="message" role="status">
+          Loading operations…
+        </p>
+      ) : (
+        <Calculator operations={operations} />
+      )}
     </main>
   )
 }

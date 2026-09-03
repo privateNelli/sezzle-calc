@@ -2,6 +2,18 @@
 
 A small calculator application with a React + TypeScript client and a Go REST API. The client obtains available operations from the API, sends calculations to it, and displays accessible loading, validation, and error states.
 
+## New device (agents: execute this)
+
+On a fresh Windows machine, run these PowerShell steps from the repo root. The full agent checklist is [`.agents/skills/bootstrap-new-device/SKILL.md`](.agents/skills/bootstrap-new-device/SKILL.md) — follow it instead of improvising.
+
+1. Confirm tools: Node.js 20+, Go 1.22+, Git (`node --version`, `go version`, `git --version`). If missing: `winget install --id Git.Git -e`, `winget install --id OpenJS.NodeJS.LTS -e`, `winget install --id GoLang.Go -e`, then open a new terminal.
+2. `Set-Location .\frontend; npm install; if (-not (Test-Path .\.env)) { Copy-Item .env.example .env }; Set-Location ..`
+3. `Set-Location .\backend; go test ./...; Set-Location ..`
+4. `Set-Location .\frontend; npm run test; Set-Location ..`
+5. Start the API (`go run .\cmd\server` in `backend\`) and Vite (`npm run dev` in `frontend\`). Open `http://localhost:5173`. Do not run Docker on port 8080 at the same time.
+
+Extended documentation is in [`docs/`](docs/README.md) (architecture, API contract, backend, frontend, local development, testing, Docker, and design decisions).
+
 ## Requirements
 
 - Node.js 20 or newer
@@ -124,9 +136,55 @@ go vet ./...
 
 ## Prompts used
 
-- “Build a full-stack calculator application with a React frontend and a backend microservice. The frontend should consume the backend API to perform basic and advanced arithmetic operations. Focus on clean design, maintainable code, and testable architecture.”
-- “investiga skills utiles en la web e importalas para un trabajo más solido”
-- “Implement the plan as specified, it is attached for your reference.”
+These are the prompts used during the assignment, in chronological order, with a short summary of what each produced. Cursor-generated follow-up messages (plan execution, subagent completion) are omitted. Spanish prompts include a corrected Spanish version and an English translation.
+
+### 1. Assignment brief
+
+The original prompt was already in English.
+
+> Build a full-stack calculator application with a React frontend and a backend microservice. The frontend should consume the backend API to perform basic and advanced arithmetic operations. Focus on clean design, maintainable code, and testable architecture.
+>
+> Requirements: addition, subtraction, multiplication, division, plus optional exponentiation, square root, and percentage. React UI with validation, error handling, and basic mobile support. REST API with JSON results and edge-case handling. Unit tests for both layers. README with setup, API usage, and design rationale. Optional Dockerfile. Prefer TypeScript on the frontend and Go on the backend. Share any prompts used.
+
+**Output:** Architecture plan for an empty workspace: React + TypeScript (Vite) client, Go `net/http` microservice, versioned `GET /api/v1/operations` and `POST /api/v1/calculate` contract, plus `GET /health`. Local Git only; no remote publish.
+
+### 2. Agent skills
+
+- **Spanish:** Investiga skills útiles en la web e impórtalas para un trabajo más sólido.
+- **English:** Research useful skills on the web and import them for a more solid result.
+
+**Output:** Imported four focused skills from `addyosmani/agent-skills` into `.agents/skills/`: `api-and-interface-design`, `frontend-ui-engineering`, `test-driven-development`, and `code-review-and-quality`. The full skill pack was skipped to avoid unrelated workflows.
+
+### 3. Implement the plan
+
+Cursor executed the accepted plan. The prompt was already in English.
+
+> Implement the plan as specified, it is attached for your reference. Do NOT edit the plan file itself.
+>
+> To-do's from the plan have already been created. Do not create them again. Mark them as in_progress as you work, starting with the first one. Don't stop until you have completed all the to-dos.
+
+**Output:** Scaffolded `frontend/` and `backend/`. Go domain package with table tests; HTTP handlers for health, operations catalog, and calculate. React form client driven by the operations catalog. README, coverage, lint, and build verified. Frontend: 6 tests, ~83% statement coverage. Backend: `go test ./...` and `go vet ./...`, ~75% coverage.
+
+### 4. Docker
+
+- **Spanish:** Ahora crea el Dockerfile para poder correr ambos servicios a la vez sin problemas.
+- **English:** Now create the Dockerfile so both services can run at the same time without issues.
+
+**Output:** Multi-stage `Dockerfile` that compiles Go and React, then runs Nginx + the API in one container. Nginx reverse-proxies `/api/*` and `/health`. `dumb-init` handles clean shutdown. README Docker section added. Verified with `docker build` / `docker run`: `/health` returned OK and the container exited 0.
+
+### 5. iOS calculator redesign
+
+- **Spanish:** Rediseña la calculadora con el formato de la calculadora de iOS y que analice la expresión hecha, conserva las operaciones disponibles y agrega un historial de cálculo.
+- **English:** Redesign the calculator using the iOS calculator layout, analyze the expression that was entered, keep the available operations, and add a calculation history.
+
+**Output:** Replaced the form with an iOS-style keypad. A client-side engine builds and analyzes the expression, then still sends `{ operation, operands }` to the Go API. History panel with recall and `localStorage` persistence. Operator chaining matches iOS behavior. Frontend suite grew to 26 passing tests.
+
+### 6. History sheet and theme toggle
+
+- **Spanish:** Reemplaza el historial fijo por un bottom sheet y agrega un botón de toggle para modo claro y modo oscuro. Estos 2 botones deben usar el espacio restante de 2 botones que queda.
+- **English:** Replace the fixed history panel with a bottom sheet and add a light/dark mode toggle. These 2 buttons should use the remaining space of 2 leftover buttons.
+
+**Output:** History moved into a bottom sheet (Done, backdrop, Escape, or recalling a result closes it). The two empty keypad slots became History and light/dark theme. Theme is stored in `localStorage` as `data-theme`. Tests cover the sheet and theme toggle.
 
 ## Repository publication
 
