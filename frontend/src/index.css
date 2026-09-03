@@ -1,8 +1,83 @@
+@property --calc-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #000000;
+}
+
+@property --calc-display {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ffffff;
+}
+
+@property --calc-key-dark {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #333333;
+}
+
+@property --calc-key-dark-text {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ffffff;
+}
+
+@property --calc-key-light {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #a5a5a5;
+}
+
+@property --calc-key-light-text {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #000000;
+}
+
+@property --calc-history {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #1c1c1e;
+}
+
+@property --calc-line {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #2c2c2e;
+}
+
+@property --calc-muted {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #8e8e93;
+}
+
+@property --calc-error {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ff453a;
+}
+
+@property --focus-ring {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ffd60a;
+}
+
+@property --sheet-backdrop {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgb(0 0 0 / 0.5);
+}
+
 :root {
   color: var(--calc-display);
+  color-scheme: dark;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  --theme-duration: 280ms;
+  --theme-easing: cubic-bezier(0.4, 0, 0.2, 1);
   --calc-bg: #000000;
   --calc-display: #ffffff;
   --calc-accent: #ff9f0a;
@@ -16,9 +91,23 @@
   --calc-error: #ff453a;
   --focus-ring: #ffd60a;
   --sheet-backdrop: rgb(0 0 0 / 0.5);
+  transition:
+    --calc-bg var(--theme-duration) var(--theme-easing),
+    --calc-display var(--theme-duration) var(--theme-easing),
+    --calc-key-dark var(--theme-duration) var(--theme-easing),
+    --calc-key-dark-text var(--theme-duration) var(--theme-easing),
+    --calc-key-light var(--theme-duration) var(--theme-easing),
+    --calc-key-light-text var(--theme-duration) var(--theme-easing),
+    --calc-history var(--theme-duration) var(--theme-easing),
+    --calc-line var(--theme-duration) var(--theme-easing),
+    --calc-muted var(--theme-duration) var(--theme-easing),
+    --calc-error var(--theme-duration) var(--theme-easing),
+    --focus-ring var(--theme-duration) var(--theme-easing),
+    --sheet-backdrop var(--theme-duration) var(--theme-easing);
 }
 
 :root[data-theme="light"] {
+  color-scheme: light;
   --calc-bg: #f2f2f7;
   --calc-display: #1c1c1e;
   --calc-key-dark: #ffffff;
@@ -31,6 +120,12 @@
   --calc-error: #ff3b30;
   --focus-ring: #ff9f0a;
   --sheet-backdrop: rgb(0 0 0 / 0.32);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --theme-duration: 0.01ms;
+  }
 }
 
 * {

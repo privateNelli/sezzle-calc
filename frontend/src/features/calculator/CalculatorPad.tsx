@@ -67,7 +67,10 @@ function UtilityKeys({ theme, onOpenHistory, onToggleTheme }: UtilityKeysProps) 
         <HistoryIcon />
       </button>
       <button type="button" className="key key-light" aria-label={themeLabel} onClick={onToggleTheme}>
-        {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+        <span className="theme-glyph">
+          <SunIcon />
+          <MoonIcon />
+        </span>
       </button>
     </>
   )
@@ -169,7 +172,7 @@ function HistoryIcon() {
 
 function SunIcon() {
   return (
-    <svg className="key-icon" viewBox="0 0 24 24" aria-hidden="true">
+    <svg className="key-icon theme-glyph-sun" viewBox="0 0 24 24" aria-hidden="true">
       <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" strokeWidth="1.8" />
       <path
         d="M12 3.5v2.2M12 18.3v2.2M3.5 12h2.2M18.3 12h2.2M6.2 6.2l1.6 1.6M16.2 16.2l1.6 1.6M17.8 6.2l-1.6 1.6M7.8 16.2l-1.6 1.6"
@@ -184,7 +187,7 @@ function SunIcon() {
 
 function MoonIcon() {
   return (
-    <svg className="key-icon" viewBox="0 0 24 24" aria-hidden="true">
+    <svg className="key-icon theme-glyph-moon" viewBox="0 0 24 24" aria-hidden="true">
       <path
         d="M15 4.2A7.8 7.8 0 1 0 19.8 14 6.2 6.2 0 0 1 15 4.2Z"
         fill="none"
