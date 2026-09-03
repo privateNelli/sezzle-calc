@@ -1,14 +1,15 @@
-import type { Operation } from './api'
-import type { EngineAction } from './calculator-engine'
-import { buildKeypadRows, type PadKey } from './keypad'
-import type { Theme } from './use-theme'
+import type { EngineAction } from '../domain/engine'
+import { buildKeypadRows, type PadKey } from '../domain/keypad'
+import type { Operation } from '../domain/types'
+import type { Theme } from '../hooks/use-theme'
 
 type CalculatorPadProps = {
   operations: Operation[]
   clearLabel: 'AC' | 'C'
   activeOperationId: string | null
   theme: Theme
-  onOpenHistory: () => void
+  historyOpen: boolean
+  onToggleHistory: () => void
   onToggleTheme: () => void
   onDispatch: (action: EngineAction) => void
 }
@@ -18,7 +19,8 @@ export function CalculatorPad({
   clearLabel,
   activeOperationId,
   theme,
-  onOpenHistory,
+  historyOpen,
+  onToggleHistory,
   onToggleTheme,
   onDispatch,
 }: CalculatorPadProps) {
@@ -39,13 +41,23 @@ export function CalculatorPad({
             />
           ))}
           {index === lastIndex && lastRowHasRoom ? (
-            <UtilityKeys theme={theme} onOpenHistory={onOpenHistory} onToggleTheme={onToggleTheme} />
+            <UtilityKeys
+              theme={theme}
+              historyOpen={historyOpen}
+              onToggleHistory={onToggleHistory}
+              onToggleTheme={onToggleTheme}
+            />
           ) : null}
         </div>
       ))}
       {!lastRowHasRoom ? (
         <div className="pad-row">
-          <UtilityKeys theme={theme} onOpenHistory={onOpenHistory} onToggleTheme={onToggleTheme} />
+          <UtilityKeys
+            theme={theme}
+            historyOpen={historyOpen}
+            onToggleHistory={onToggleHistory}
+            onToggleTheme={onToggleTheme}
+          />
         </div>
       ) : null}
     </div>
@@ -54,16 +66,23 @@ export function CalculatorPad({
 
 type UtilityKeysProps = {
   theme: Theme
-  onOpenHistory: () => void
+  historyOpen: boolean
+  onToggleHistory: () => void
   onToggleTheme: () => void
 }
 
-function UtilityKeys({ theme, onOpenHistory, onToggleTheme }: UtilityKeysProps) {
+function UtilityKeys({ theme, historyOpen, onToggleHistory, onToggleTheme }: UtilityKeysProps) {
   const themeLabel = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
 
   return (
     <>
-      <button type="button" className="key key-light" aria-label="History" onClick={onOpenHistory}>
+      <button
+        type="button"
+        className="key key-light"
+        aria-label="History"
+        aria-expanded={historyOpen}
+        onClick={onToggleHistory}
+      >
         <HistoryIcon />
       </button>
       <button type="button" className="key key-light" aria-label={themeLabel} onClick={onToggleTheme}>

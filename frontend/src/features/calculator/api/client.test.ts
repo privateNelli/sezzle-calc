@@ -1,8 +1,12 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { calculate, CalculatorApiError, getOperations } from './api'
+import { calculate, CalculatorApiError, evaluate, getOperations } from './client'
 
 describe('calculator API client', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
   it('gets the available operations', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(
@@ -39,6 +43,26 @@ describe('calculator API client', () => {
     )
   })
 
+  it('posts a multi-step expression and returns its result', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({ operands: [1, 2, 3], operations: ['add', 'multiply'], result: 7 }),
+        { status: 200 },
+      ),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(evaluate({ operands: [1, 2, 3], operations: ['add', 'multiply'] })).resolves.toEqual({
+      operands: [1, 2, 3],
+      operations: ['add', 'multiply'],
+      result: 7,
+    })
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:8080/api/v1/evaluate',
+      expect.objectContaining({ method: 'POST' }),
+    )
+  })
+
   it('surfaces a structured backend error', async () => {
     vi.stubGlobal(
       'fetch',
@@ -55,5 +79,20 @@ describe('calculator API client', () => {
     await expect(calculate({ operation: 'divide', operands: [1, 0] })).rejects.toEqual(
       new CalculatorApiError('DIVISION_BY_ZERO', 'Cannot divide by zero.'),
     )
+  })
+
+  it('surfaces catalog fetch failures as CalculatorApiError', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ error: { code: 'DOWN', message: 'Unavailable.' } }), { status: 503 }),
+      ),
+    )
+
+    await expect(getOperations()).rejects.toMatchObject({
+      name: 'CalculatorApiError',
+      code: 'DOWN',
+      message: 'Unavailable.',
+    })
   })
 })

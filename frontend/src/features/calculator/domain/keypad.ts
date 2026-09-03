@@ -1,4 +1,4 @@
-import type { Operation } from './api'
+import type { Operation } from './types'
 
 export type PadKey =
   | { id: string; kind: 'digit'; digit: string; label: string; ariaLabel: string; wide?: boolean }

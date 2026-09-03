@@ -82,6 +82,44 @@ Invoke-RestMethod `
   -Body $body
 ```
 
+### `POST /api/v1/evaluate`
+
+Evaluates a binary expression of two or more operands. Multiplication and division bind tighter than addition and subtraction. Exponentiation is right-associative. The expression is limited to 16 operands.
+
+**Request**
+
+```json
+{
+  "operands": [1, 2, 3],
+  "operations": ["add", "multiply"]
+}
+```
+
+**Response `200`**
+
+```json
+{
+  "operands": [1, 2, 3],
+  "operations": ["add", "multiply"],
+  "result": 7
+}
+```
+
+PowerShell:
+
+```powershell
+$body = @{
+  operands = @(1, 2, 3)
+  operations = @("add", "multiply")
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+  -Method Post `
+  -Uri http://localhost:8080/api/v1/evaluate `
+  -ContentType "application/json" `
+  -Body $body
+```
+
 ## Errors
 
 Every error body uses the same shape:
@@ -100,6 +138,7 @@ Every error body uses the same shape:
 | `400` | `INVALID_JSON` | Body is not a single valid JSON object, or contains unknown fields |
 | `422` | `UNKNOWN_OPERATION` | `operation` is not in the catalog |
 | `422` | `INVALID_ARITY` | Operand count does not match the operation |
+| `422` | `INVALID_EXPRESSION` | Operand/operation counts do not form a valid binary chain, a unary operation appears in the chain, or the expression exceeds 16 operands |
 | `422` | `DIVISION_BY_ZERO` | Division with a zero divisor |
 | `422` | `NEGATIVE_SQUARE_ROOT` | Square root of a negative number |
 | `422` | `NON_FINITE_NUMBER` | An operand is NaN or Inf |

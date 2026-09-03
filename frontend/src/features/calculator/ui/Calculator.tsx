@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 
-import type { Operation } from './api'
+import type { Operation } from '../domain/types'
+import { useCalculator } from '../hooks/use-calculator'
+import { useDesktopLayout } from '../hooks/use-desktop-layout'
+import { useTheme } from '../hooks/use-theme'
 import { CalculatorDisplay } from './CalculatorDisplay'
 import { CalculatorPad } from './CalculatorPad'
 import { HistorySheet } from './HistorySheet'
-import { useCalculator } from './use-calculator'
-import { useTheme } from './use-theme'
 
 type CalculatorProps = {
   operations: Operation[]
@@ -27,6 +28,7 @@ export function Calculator({ operations }: CalculatorProps) {
     clearHistory,
   } = useCalculator(operations)
   const { theme, toggleTheme } = useTheme()
+  const isDesktop = useDesktopLayout()
   const [historyOpen, setHistoryOpen] = useState(false)
   const activeOperationId = overwrite ? pendingOperationId : null
 
@@ -36,7 +38,7 @@ export function Calculator({ operations }: CalculatorProps) {
         return
       }
 
-      if (historyOpen) {
+      if (historyOpen && !isDesktop) {
         if (event.key === 'Escape') {
           event.preventDefault()
           setHistoryOpen(false)
@@ -55,7 +57,7 @@ export function Calculator({ operations }: CalculatorProps) {
 
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [dispatch, historyOpen])
+  }, [dispatch, historyOpen, isDesktop])
 
   return (
     <div className="workspace">
@@ -71,7 +73,8 @@ export function Calculator({ operations }: CalculatorProps) {
           clearLabel={clearLabel}
           activeOperationId={activeOperationId}
           theme={theme}
-          onOpenHistory={() => setHistoryOpen(true)}
+          historyOpen={historyOpen}
+          onToggleHistory={() => setHistoryOpen((open) => !open)}
           onToggleTheme={toggleTheme}
           onDispatch={(action) => {
             void dispatch(action)

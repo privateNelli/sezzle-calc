@@ -10,7 +10,7 @@ Go module: `github.com/example/sezzle-calc/backend` (`go 1.22` in `go.mod`; the 
 | `internal/api` | HTTP routing, JSON, CORS, status mapping |
 | `internal/calculator` | Operation catalog and arithmetic |
 
-Handlers parse and serialize. They do not contain formulas. `calculator.Calculate` is a pure function and is the unit under test for math and domain errors.
+Handlers parse and serialize. They do not contain formulas. `calculator.Calculate` and `calculator.Evaluate` are pure functions and are the units under test for math and domain errors.
 
 ## Configuration
 

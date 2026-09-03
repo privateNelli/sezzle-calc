@@ -1,9 +1,6 @@
-export type Operation = {
-  id: string
-  label: string
-  arity: number
-  symbol: string
-}
+import type { Operation } from '../domain/types'
+
+export type { Operation }
 
 export type CalculationInput = {
   operation: string
@@ -11,6 +8,15 @@ export type CalculationInput = {
 }
 
 export type Calculation = CalculationInput & {
+  result: number
+}
+
+export type EvaluateInput = {
+  operands: number[]
+  operations: string[]
+}
+
+export type Evaluation = EvaluateInput & {
   result: number
 }
 
@@ -50,6 +56,16 @@ export async function calculate(input: CalculationInput): Promise<Calculation> {
   })
 
   return parseResponse<Calculation>(response)
+}
+
+export async function evaluate(input: EvaluateInput): Promise<Evaluation> {
+  const response = await fetch(`${apiBaseUrl}/api/v1/evaluate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
+
+  return parseResponse<Evaluation>(response)
 }
 
 async function parseResponse<T>(response: Response): Promise<T> {

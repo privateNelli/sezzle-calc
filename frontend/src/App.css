@@ -172,7 +172,8 @@
 .key:focus-visible,
 .history-item:focus-visible,
 .history-clear:focus-visible,
-.sheet-backdrop:focus-visible {
+.sheet-backdrop:focus-visible,
+.sheet-handle-hit:focus-visible {
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }
@@ -184,6 +185,7 @@
 }
 
 .sheet-backdrop {
+  animation: history-fade-in var(--theme-duration) var(--theme-easing);
   background: var(--sheet-backdrop);
   border: 0;
   cursor: pointer;
@@ -192,27 +194,81 @@
 }
 
 .bottom-sheet {
+  animation: history-rise var(--theme-duration) var(--theme-easing);
   background: var(--calc-history);
   border-radius: 1rem 1rem 0 0;
   bottom: 0;
   box-shadow: 0 -8px 32px rgb(0 0 0 / 0.28);
   display: flex;
   flex-direction: column;
-  left: 50%;
-  max-height: min(70vh, 36rem);
-  max-width: var(--calc-device-width);
+  height: var(--sheet-height, 55svh);
+  left: 0;
+  max-height: 92svh;
+  max-width: none;
   padding: 0.25rem 1.25rem 1.5rem;
   position: absolute;
-  transform: translateX(-50%);
+  right: 0;
+  transition: height 180ms var(--theme-easing);
   width: 100%;
+}
+
+.bottom-sheet.is-dragging {
+  animation: none;
+  transition: none;
+}
+
+@keyframes history-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes history-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes history-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-0.75rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.sheet-handle-hit {
+  align-items: center;
+  cursor: ns-resize;
+  display: flex;
+  flex-shrink: 0;
+  justify-content: center;
+  margin: 0 -1.25rem 0.25rem;
+  min-height: 2rem;
+  touch-action: none;
+  user-select: none;
 }
 
 .sheet-handle {
   background: var(--calc-muted);
   border-radius: 999px;
   height: 0.25rem;
-  margin: 0.5rem auto 0.75rem;
   opacity: 0.45;
+  pointer-events: none;
   width: 2.5rem;
 }
 
@@ -265,6 +321,7 @@
 }
 
 .history-list {
+  align-content: start;
   display: grid;
   flex: 1;
   gap: 0.25rem;
@@ -273,6 +330,25 @@
   min-height: 0;
   overflow: auto;
   padding: 0;
+  scrollbar-color: color-mix(in srgb, var(--calc-muted) 40%, transparent) transparent;
+  scrollbar-width: thin;
+}
+
+.history-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.history-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--calc-muted) 40%, transparent);
+  border-radius: 999px;
+}
+
+.history-list::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--calc-muted) 65%, transparent);
 }
 
 .history-item {
@@ -319,7 +395,10 @@
     --gap: 0.6rem;
     --display-h: clamp(6.5rem, 16vh, 8.25rem);
     --vpad: 2rem;
-    --key-size: min(4.85rem, (100svh - var(--display-h) - var(--vpad) - 5 * var(--gap)) / 6);
+    --frame-width: 2px;
+    --frame-radius: 16px;
+    --frame-pad: 1rem;
+    --key-size: min(4.85rem, (100svh - var(--display-h) - var(--vpad) - 5 * var(--gap) - 2 * var(--frame-width) - 2 * var(--frame-pad)) / 6);
     --calc-device-width: calc(4 * var(--key-size) + 3 * var(--gap));
     align-items: center;
     display: grid;
@@ -335,12 +414,15 @@
   }
 
   .calculator-device {
+    border: var(--frame-width) solid var(--calc-line);
+    border-radius: var(--frame-radius);
     gap: 0.75rem;
     grid-column: 2;
     height: calc(100svh - 2rem);
-    padding: 0.15rem 0 0.35rem;
+    overflow: hidden;
+    padding: var(--frame-pad);
     position: relative;
-    width: var(--calc-device-width);
+    width: calc(var(--calc-device-width) + 2 * var(--frame-width) + 2 * var(--frame-pad));
     z-index: 11;
   }
 
@@ -413,14 +495,17 @@
   }
 
   .sheet-backdrop {
+    background: transparent;
     grid-column: 1 / -1;
     grid-row: 1;
     inset: 0;
+    pointer-events: none;
     position: fixed;
     z-index: 10;
   }
 
   .history-panel {
+    animation: history-slide-in var(--theme-duration) var(--theme-easing);
     border-radius: 1.25rem;
     bottom: auto;
     box-shadow: 0 8px 32px rgb(0 0 0 / 0.28);
@@ -433,12 +518,12 @@
     max-width: none;
     padding: 1.25rem 1.35rem 1.5rem;
     position: relative;
-    transform: none;
+    right: auto;
     width: min(22rem, calc(100% - 1.5rem));
     z-index: 11;
   }
 
-  .sheet-handle {
+  .sheet-handle-hit {
     display: none;
   }
 }

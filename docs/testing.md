@@ -6,8 +6,8 @@ Tests sit next to the code they specify. Prefer failing tests first when changin
 
 `go test` table tests in:
 
-- `internal/calculator/calculator_test.go` — happy paths and domain rejections
-- `internal/api/handler_test.go` — health, catalog, calculate, structured errors
+- `internal/calculator/calculator_test.go` — happy paths and domain rejections for single operations and multi-step expressions
+- `internal/api/handler_test.go` — health, catalog, calculate, evaluate, structured errors
 
 ```powershell
 Set-Location .\backend
@@ -22,11 +22,22 @@ Vitest + Testing Library + jsdom (`frontend/vite.config.ts`, `src/test/setup.ts`
 
 | File | Focus |
 | --- | --- |
-| `api.test.ts` | Fetch client and `CalculatorApiError` |
-| `expression.test.ts` | Analysis strings and arity checks |
-| `history.test.ts` | Cap, serialize, ignore junk JSON |
-| `calculator-engine.test.ts` | Keypad state machine |
-| `Calculator.test.tsx` | UI: calculate, history sheet, theme, persistence |
+| `App.test.tsx` | Catalog loading, API-down alert, calculator mount |
+| `api/client.test.ts` | Fetch client and `CalculatorApiError` |
+| `domain/expression.test.ts` | Analysis strings and arity checks |
+| `domain/history.test.ts` | Cap, serialize, ignore junk JSON |
+| `domain/engine.test.ts` | Keypad state machine |
+| `domain/format.test.ts` | Result formatting and non-finite values |
+| `domain/keypad.test.ts` | Catalog-driven pad layout |
+| `hooks/use-calculator.test.ts` | API orchestration, busy lock, history |
+| `hooks/use-theme.test.ts` | Theme parse and persistence |
+| `hooks/use-desktop-layout.test.ts` | Desktop media query |
+| `ui/Calculator.test.tsx` | UI: calculate, history sheet, theme, keyboard |
+| `ui/CalculatorDisplay.test.tsx` | Analysis vs error vs value size |
+| `ui/CalculatorHistory.test.tsx` | Empty, recall, clear |
+| `ui/CalculatorPad.test.tsx` | Key dispatch and leftover utility slots |
+| `ui/sheet-height.test.ts` | Bottom-sheet snap points and dismiss threshold |
+| `ui/HistorySheet.test.tsx` | Drag, keyboard resize, dismiss |
 
 ```powershell
 Set-Location .\frontend

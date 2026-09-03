@@ -1,33 +1,51 @@
 # Frontend
 
-Vite + React 19 + TypeScript. UI code lives under `frontend/src/features/calculator/`.
+Vite + React 19 + TypeScript. The calculator is a single feature with layered folders. `App` imports only the public surface (`Calculator`, `getOperations`, `Operation`).
 
 `App` loads the operation catalog on mount. If the API is down, it shows an alert and does not render the keypad.
 
+## Layout
+
+```text
+frontend/src/
+  App.tsx
+  features/calculator/
+    index.ts              Public exports
+    api/client.ts         HTTP client
+    domain/               Pure logic; must not import api/
+    hooks/                Engine + persistence + theme
+    ui/                   Presentational components
+```
+
+Dependency direction: `ui` → `hooks` → `api` + `domain`. `domain` never imports `api` or `ui`. Catalog types (`Operation`) live in `domain/types.ts`, not in the HTTP module.
+
 ## Modules
 
-| File | Responsibility |
+| Path | Responsibility |
 | --- | --- |
-| `api.ts` | `getOperations` / `calculate`; maps HTTP errors to `CalculatorApiError` |
-| `calculator-engine.ts` | Digit entry, AC/C, chaining, unary vs binary, equals repeat |
-| `expression.ts` | Turns a draft into `{ operation, operands, expression, analysis }` |
-| `use-calculator.ts` | Engine + API calls + history persistence |
-| `keypad.ts` | iOS-style rows from the catalog |
-| `Calculator.tsx` | Shell, keyboard shortcuts, history sheet |
-| `CalculatorPad.tsx` | Keys plus History and theme in leftover slots |
-| `HistorySheet.tsx` | Modal bottom sheet |
-| `history.ts` | Cap 50 entries; ignore corrupt `localStorage` |
-| `use-theme.ts` | `data-theme` on `<html>`; persist light/dark |
-| `format.ts` | Display formatting for results |
+| `api/client.ts` | `getOperations` / `calculate` / `evaluate`; maps HTTP errors to `CalculatorApiError` |
+| `domain/types.ts` | Shared catalog type (`Operation`) |
+| `domain/engine.ts` | Digit entry, AC/C, multi-step chaining, unary vs binary, equals repeat |
+| `domain/expression.ts` | Turns a draft into a unary calculate payload or a chain evaluate payload |
+| `domain/keypad.ts` | iOS-style rows from the catalog |
+| `domain/history.ts` | Cap 50 entries; ignore corrupt `localStorage` |
+| `domain/format.ts` | Display formatting for results |
+| `hooks/use-calculator.ts` | Engine + API calls + history persistence |
+| `hooks/use-theme.ts` | `data-theme` on `<html>`; persist light/dark |
+| `hooks/use-desktop-layout.ts` | Desktop vs mobile layout query |
+| `ui/Calculator.tsx` | Shell, keyboard shortcuts, history sheet |
+| `ui/CalculatorPad.tsx` | Keys plus History and theme in leftover slots |
+| `ui/HistorySheet.tsx` | Modal bottom sheet; drag/keyboard resize on mobile |
+| `ui/sheet-height.ts` | Snap points and dismiss threshold for the sheet |
 
 ## Request flow
 
 1. User completes an expression (`=` or a unary key such as `√` / `%`).
 2. The engine emits a `calculate` effect with an analyzed payload.
-3. `use-calculator` POSTs `{ operation, operands }` to the API.
-4. On success, the display updates. Completed calculations (not intermediate chain steps) append to history.
+3. `use-calculator` POSTs unary work to `/api/v1/calculate` and binary chains to `/api/v1/evaluate`.
+4. On success, the display updates. Completed calculations (not mid-expression unary steps) append to history.
 
-Chaining (`2 + 3 ×`) evaluates the pending binary operation first, does **not** write that intermediate result to history, then queues the next operator — similar to iOS.
+Chaining (`1 + 2 × 3`) keeps the full expression until `=`. The API applies operator precedence (`1 + 2 × 3` → `7`). Pressing a second operator before a new number replaces the last operator.
 
 ## Persistence
 
@@ -42,6 +60,7 @@ Chaining (`2 + 3 ×`) evaluates the pending binary operation first, does **not**
 - Display uses `aria-live="polite"`.
 - API and calculation errors use `role="alert"`.
 - History sheet is `role="dialog"` with backdrop, Done, and Escape.
+- On small screens the sheet handle is a vertical slider: drag or Arrow keys change height; drag past the bottom snap dismisses.
 - Theme and history controls fill the unused last-row keypad cells.
 
 ## Environment

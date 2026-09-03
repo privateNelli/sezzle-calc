@@ -33,11 +33,23 @@ type calculateResponse struct {
 	Result    float64              `json:"result"`
 }
 
+type evaluateRequest struct {
+	Operands   []float64              `json:"operands"`
+	Operations []calculator.Operation `json:"operations"`
+}
+
+type evaluateResponse struct {
+	Operands   []float64              `json:"operands"`
+	Operations []calculator.Operation `json:"operations"`
+	Result     float64                `json:"result"`
+}
+
 func NewHandler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", health)
 	mux.HandleFunc("GET /api/v1/operations", listOperations)
 	mux.HandleFunc("POST /api/v1/calculate", calculate)
+	mux.HandleFunc("POST /api/v1/evaluate", evaluate)
 
 	return withCORS(mux)
 }
@@ -59,12 +71,7 @@ func calculate(writer http.ResponseWriter, request *http.Request) {
 
 	result, err := calculator.Calculate(input.Operation, input.Operands)
 	if err != nil {
-		var calculationError *calculator.Error
-		if errors.As(err, &calculationError) {
-			writeError(writer, http.StatusUnprocessableEntity, string(calculationError.Code), calculationError.Message)
-			return
-		}
-		writeError(writer, http.StatusInternalServerError, "INTERNAL_ERROR", "An unexpected error occurred.")
+		writeCalculationError(writer, err)
 		return
 	}
 
@@ -73,6 +80,35 @@ func calculate(writer http.ResponseWriter, request *http.Request) {
 		Operands:  input.Operands,
 		Result:    result,
 	})
+}
+
+func evaluate(writer http.ResponseWriter, request *http.Request) {
+	var input evaluateRequest
+	if err := decodeJSON(request, &input); err != nil {
+		writeError(writer, http.StatusBadRequest, "INVALID_JSON", "The request body must be valid JSON.")
+		return
+	}
+
+	result, err := calculator.Evaluate(input.Operands, input.Operations)
+	if err != nil {
+		writeCalculationError(writer, err)
+		return
+	}
+
+	writeJSON(writer, http.StatusOK, evaluateResponse{
+		Operands:   input.Operands,
+		Operations: input.Operations,
+		Result:     result,
+	})
+}
+
+func writeCalculationError(writer http.ResponseWriter, err error) {
+	var calculationError *calculator.Error
+	if errors.As(err, &calculationError) {
+		writeError(writer, http.StatusUnprocessableEntity, string(calculationError.Code), calculationError.Message)
+		return
+	}
+	writeError(writer, http.StatusInternalServerError, "INTERNAL_ERROR", "An unexpected error occurred.")
 }
 
 func decodeJSON(request *http.Request, target any) error {

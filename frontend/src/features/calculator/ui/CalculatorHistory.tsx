@@ -1,14 +1,21 @@
-import { formatOperand } from './format'
-import type { HistoryEntry } from './history'
+import { formatOperand } from '../domain/format'
+import type { HistoryEntry } from '../domain/history'
 
 type CalculatorHistoryProps = {
   entries: HistoryEntry[]
   onRecall: (value: number) => void
   onClear: () => void
   onClose: () => void
+  autoFocusClose?: boolean
 }
 
-export function CalculatorHistory({ entries, onRecall, onClear, onClose }: CalculatorHistoryProps) {
+export function CalculatorHistory({
+  entries,
+  onRecall,
+  onClear,
+  onClose,
+  autoFocusClose = false,
+}: CalculatorHistoryProps) {
   return (
     <div className="calculator-history">
       <header className="history-header">
@@ -19,7 +26,7 @@ export function CalculatorHistory({ entries, onRecall, onClear, onClose }: Calcu
               Clear
             </button>
           )}
-          <button type="button" className="history-clear" onClick={onClose} autoFocus>
+          <button type="button" className="history-clear" onClick={onClose} autoFocus={autoFocusClose}>
             Done
           </button>
         </div>
@@ -43,7 +50,9 @@ export function CalculatorHistory({ entries, onRecall, onClear, onClose }: Calcu
                 >
                   <span className="history-expression">{entry.expression}</span>
                   <span className="history-result">= {result}</span>
-                  <span className="history-analysis">{entry.analysis}</span>
+                  {entry.analysis && entry.analysis !== entry.expression ? (
+                    <span className="history-analysis">{entry.analysis}</span>
+                  ) : null}
                 </button>
               </li>
             )

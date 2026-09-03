@@ -1,14 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { calculate, type Operation } from './api'
-import { createInitialState, reduce, type EngineAction, type EngineState } from './calculator-engine'
+import { calculate, evaluate } from '../api/client'
+import {
+  createInitialState,
+  pendingOperationId,
+  reduce,
+  type EngineAction,
+  type EngineState,
+} from '../domain/engine'
+import type { AnalyzedExpression } from '../domain/expression'
 import {
   addHistoryEntry,
   HISTORY_STORAGE_KEY,
   parseHistory,
   serializeHistory,
   type HistoryEntry,
-} from './history'
+} from '../domain/history'
+import type { Operation } from '../domain/types'
 
 export function useCalculator(operations: Operation[]) {
   const [state, setState] = useState<EngineState>(createInitialState)
@@ -40,18 +48,14 @@ export function useCalculator(operations: Operation[]) {
       setIsCalculating(true)
 
       try {
-        const calculation = await calculate({
-          operation: effect.analyzed.operation,
-          operands: effect.analyzed.operands,
-        })
+        const result = await requestCalculation(effect.analyzed)
         const success = reduce(
           stateRef.current,
           {
             type: 'succeed',
-            result: calculation.result,
+            result,
             analyzed: effect.analyzed,
             recordHistory: effect.recordHistory,
-            queuedOperationId: effect.queuedOperationId,
           },
           operations,
         )
@@ -63,7 +67,7 @@ export function useCalculator(operations: Operation[]) {
             addHistoryEntry(current, {
               expression: effect.analyzed.expression,
               analysis: effect.analyzed.analysis,
-              result: calculation.result,
+              result,
             }),
           )
         }
@@ -99,6 +103,7 @@ export function useCalculator(operations: Operation[]) {
 
   return {
     ...state,
+    pendingOperationId: pendingOperationId(state),
     history,
     isCalculating,
     dispatch,
@@ -113,4 +118,27 @@ function readStoredHistory(): HistoryEntry[] {
   }
 
   return parseHistory(window.localStorage.getItem(HISTORY_STORAGE_KEY))
+}
+
+async function requestCalculation(analyzed: AnalyzedExpression): Promise<number> {
+  switch (analyzed.kind) {
+    case 'unary': {
+      const calculation = await calculate({
+        operation: analyzed.operation,
+        operands: analyzed.operands,
+      })
+      return calculation.result
+    }
+    case 'chain': {
+      const evaluation = await evaluate({
+        operands: analyzed.operands,
+        operations: analyzed.operations,
+      })
+      return evaluation.result
+    }
+    default: {
+      const _exhaustive: never = analyzed
+      throw new Error(`Unhandled analyzed expression: ${String(_exhaustive)}`)
+    }
+  }
 }

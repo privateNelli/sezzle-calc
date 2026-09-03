@@ -103,6 +103,23 @@ Errors use a consistent JSON shape:
 
 Invalid JSON returns `400`; mathematically invalid requests return `422`.
 
+### Evaluate an expression
+
+```powershell
+$body = @{
+  operands = @(1, 2, 3)
+  operations = @("add", "multiply")
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+  -Method Post `
+  -Uri http://localhost:8080/api/v1/evaluate `
+  -ContentType "application/json" `
+  -Body $body
+```
+
+`POST /api/v1/evaluate` accepts two to sixteen operands and one binary operation between each pair. Multiplication and division bind tighter than addition and subtraction, so `1 + 2 × 3` is `7`. Exponentiation is right-associative.
+
 ## Tests, coverage, and quality checks
 
 Frontend:
@@ -185,6 +202,13 @@ Cursor executed the accepted plan. The prompt was already in English.
 - **English:** Replace the fixed history panel with a bottom sheet and add a light/dark mode toggle. These 2 buttons should use the remaining space of 2 leftover buttons.
 
 **Output:** History moved into a bottom sheet (Done, backdrop, Escape, or recalling a result closes it). The two empty keypad slots became History and light/dark theme. Theme is stored in `localStorage` as `data-theme`. Tests cover the sheet and theme toggle.
+
+### 7. Extended expressions
+
+- **Spanish:** Necesito poder hacer expresiones extendidas, no solo en pares.
+- **English:** I need to be able to enter extended expressions, not only pairs.
+
+**Output:** Keypad chains binary operators until `=`. Additive `POST /api/v1/evaluate` evaluates the full operand/operation lists with precedence. Unary operations still use `POST /api/v1/calculate`. Pair-only `calculate` remains unchanged.
 
 ## Repository publication
 

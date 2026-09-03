@@ -23,11 +23,14 @@ type ErrorCode string
 const (
 	UnknownOperation   ErrorCode = "UNKNOWN_OPERATION"
 	InvalidArity       ErrorCode = "INVALID_ARITY"
+	InvalidExpression  ErrorCode = "INVALID_EXPRESSION"
 	DivisionByZero     ErrorCode = "DIVISION_BY_ZERO"
 	NegativeSquareRoot ErrorCode = "NEGATIVE_SQUARE_ROOT"
 	NonFiniteNumber    ErrorCode = "NON_FINITE_NUMBER"
 	NonFiniteResult    ErrorCode = "NON_FINITE_RESULT"
 )
+
+const MaxExpressionOperands = 16
 
 type Error struct {
 	Code    ErrorCode
@@ -117,4 +120,111 @@ func Calculate(operation Operation, operands []float64) (float64, error) {
 	}
 
 	return result, nil
+}
+
+func Evaluate(operands []float64, operations []Operation) (float64, error) {
+	if err := validateExpression(operands, operations); err != nil {
+		return 0, err
+	}
+
+	values := make([]float64, 0, len(operands))
+	pending := make([]Operation, 0, len(operations))
+
+	for index, operand := range operands {
+		values = append(values, operand)
+		if index == len(operations) {
+			break
+		}
+
+		incoming := operations[index]
+		for len(pending) > 0 && shouldReduce(pending[len(pending)-1], incoming) {
+			reduced, err := reduceTop(&values, &pending)
+			if err != nil {
+				return 0, err
+			}
+			values = append(values, reduced)
+		}
+		pending = append(pending, incoming)
+	}
+
+	for len(pending) > 0 {
+		reduced, err := reduceTop(&values, &pending)
+		if err != nil {
+			return 0, err
+		}
+		values = append(values, reduced)
+	}
+
+	if len(values) != 1 {
+		return 0, &Error{Code: InvalidExpression, Message: "The expression could not be evaluated."}
+	}
+
+	return values[0], nil
+}
+
+func validateExpression(operands []float64, operations []Operation) error {
+	if len(operands) < 2 || len(operands) > MaxExpressionOperands {
+		return &Error{Code: InvalidExpression, Message: "An expression must contain between 2 and 16 operands."}
+	}
+	if len(operations) != len(operands)-1 {
+		return &Error{Code: InvalidExpression, Message: "An expression must contain one binary operation between each operand."}
+	}
+
+	for _, operand := range operands {
+		if math.IsNaN(operand) || math.IsInf(operand, 0) {
+			return &Error{Code: NonFiniteNumber, Message: "Operands must be finite numbers."}
+		}
+	}
+
+	for _, operation := range operations {
+		definition, exists := definitions[operation]
+		if !exists {
+			return &Error{Code: UnknownOperation, Message: "The requested operation is not supported."}
+		}
+		if definition.Arity != 2 {
+			return &Error{Code: InvalidExpression, Message: "Only binary operations can appear in a multi-step expression."}
+		}
+	}
+
+	return nil
+}
+
+func shouldReduce(pending, incoming Operation) bool {
+	pendingPrecedence := precedence(pending)
+	incomingPrecedence := precedence(incoming)
+	if pendingPrecedence > incomingPrecedence {
+		return true
+	}
+	if pendingPrecedence < incomingPrecedence {
+		return false
+	}
+	return incoming != Power
+}
+
+func precedence(operation Operation) int {
+	switch operation {
+	case Add, Subtract:
+		return 1
+	case Multiply, Divide:
+		return 2
+	case Power:
+		return 3
+	default:
+		return 0
+	}
+}
+
+func reduceTop(values *[]float64, pending *[]Operation) (float64, error) {
+	if len(*pending) == 0 || len(*values) < 2 {
+		return 0, &Error{Code: InvalidExpression, Message: "The expression could not be evaluated."}
+	}
+
+	operation := (*pending)[len(*pending)-1]
+	*pending = (*pending)[:len(*pending)-1]
+
+	right := (*values)[len(*values)-1]
+	left := (*values)[len(*values)-2]
+	*values = (*values)[:len(*values)-2]
+
+	return Calculate(operation, []float64{left, right})
 }

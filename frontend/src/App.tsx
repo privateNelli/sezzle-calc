@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { Calculator } from './features/calculator/Calculator'
-import { getOperations, type Operation } from './features/calculator/api'
+import { Calculator, getOperations, type Operation } from './features/calculator'
 import './App.css'
 
 function App() {

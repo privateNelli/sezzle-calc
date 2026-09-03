@@ -1,5 +1,10 @@
-import type { Operation } from './api'
-import { analyzeExpression, infixSymbol, type AnalyzedExpression } from './expression'
+import type { Operation } from './types'
+import {
+  analyzeExpression,
+  formatChainExpression,
+  MAX_EXPRESSION_OPERANDS,
+  type AnalyzedExpression,
+} from './expression'
 import { formatOperand } from './format'
 
 const MAX_DIGITS = 9
@@ -9,8 +14,8 @@ export type ClearLabel = 'AC' | 'C'
 export type EngineState = {
   input: string
   overwrite: boolean
-  leftOperand: number | null
-  pendingOperationId: string | null
+  operands: number[]
+  operators: string[]
   lastBinary: { operationId: string; right: number } | null
   expression: string
   analysis: string | null
@@ -31,7 +36,6 @@ export type EngineAction =
       result: number
       analyzed: AnalyzedExpression
       recordHistory: boolean
-      queuedOperationId: string | null
     }
   | { type: 'fail'; message: string }
   | { type: 'recall'; value: number }
@@ -40,7 +44,6 @@ export type CalculateEffect = {
   type: 'calculate'
   analyzed: AnalyzedExpression
   recordHistory: boolean
-  queuedOperationId: string | null
 }
 
 export type EngineResult = {
@@ -52,8 +55,8 @@ export function createInitialState(): EngineState {
   return {
     input: '0',
     overwrite: true,
-    leftOperand: null,
-    pendingOperationId: null,
+    operands: [],
+    operators: [],
     lastBinary: null,
     expression: '',
     analysis: null,
@@ -67,6 +70,13 @@ export function currentValue(state: EngineState): number {
     return Number.NaN
   }
   return Number(state.input)
+}
+
+export function pendingOperationId(state: EngineState): string | null {
+  if (state.operators.length === 0 || state.operators.length !== state.operands.length) {
+    return null
+  }
+  return state.operators[state.operators.length - 1] ?? null
 }
 
 export function reduce(state: EngineState, action: EngineAction, operations: Operation[]): EngineResult {
@@ -86,7 +96,7 @@ export function reduce(state: EngineState, action: EngineAction, operations: Ope
     case 'equals':
       return applyEquals(state, operations)
     case 'succeed':
-      return { state: applySucceed(state, action, operations) }
+      return { state: applySucceed(state, action) }
     case 'fail':
       return { state: applyFail(action.message) }
     case 'recall':
@@ -101,7 +111,7 @@ export function reduce(state: EngineState, action: EngineAction, operations: Ope
 
 function applyDigit(state: EngineState, digit: string): EngineState {
   if (isErrorInput(state.input) || state.overwrite) {
-    const startingFresh = state.pendingOperationId === null
+    const startingFresh = !isExpressionOpen(state)
     const input = digit
     return {
       ...state,
@@ -111,7 +121,8 @@ function applyDigit(state: EngineState, digit: string): EngineState {
       expression: startingFresh ? '' : state.expression,
       analysis: startingFresh ? null : state.analysis,
       lastBinary: startingFresh ? null : state.lastBinary,
-      leftOperand: startingFresh ? null : state.leftOperand,
+      operands: startingFresh ? [] : state.operands,
+      operators: startingFresh ? [] : state.operators,
       clearLabel: labelFor(input, false),
     }
   }
@@ -132,7 +143,7 @@ function applyDigit(state: EngineState, digit: string): EngineState {
 
 function applyDecimal(state: EngineState): EngineState {
   if (isErrorInput(state.input) || state.overwrite) {
-    const startingFresh = state.pendingOperationId === null
+    const startingFresh = !isExpressionOpen(state)
     return {
       ...state,
       input: '0.',
@@ -141,7 +152,8 @@ function applyDecimal(state: EngineState): EngineState {
       expression: startingFresh ? '' : state.expression,
       analysis: startingFresh ? null : state.analysis,
       lastBinary: startingFresh ? null : state.lastBinary,
-      leftOperand: startingFresh ? null : state.leftOperand,
+      operands: startingFresh ? [] : state.operands,
+      operators: startingFresh ? [] : state.operators,
       clearLabel: 'C',
     }
   }
@@ -196,45 +208,54 @@ function applyOperation(state: EngineState, operationId: string, operations: Ope
   }
 
   if (operation.arity === 1) {
-    return enqueueAnalysis(state, operations, {
-      kind: 'unary',
-      operationId: operation.id,
-      value: currentValue(state),
-    }, true, null)
+    return enqueueAnalysis(
+      state,
+      operations,
+      {
+        kind: 'unary',
+        operationId: operation.id,
+        value: currentValue(state),
+      },
+      !isExpressionOpen(state),
+    )
   }
 
   if (operation.arity !== 2) {
     return { state }
   }
 
-  const shouldEvaluatePending =
-    state.pendingOperationId !== null && !state.overwrite && state.leftOperand !== null
-
-  if (shouldEvaluatePending && state.pendingOperationId !== null && state.leftOperand !== null) {
-    return enqueueAnalysis(
-      state,
-      operations,
-      {
-        kind: 'binary',
-        operationId: state.pendingOperationId,
-        left: state.leftOperand,
-        right: currentValue(state),
+  if (state.overwrite && isExpressionOpen(state)) {
+    const operators = [...state.operators.slice(0, -1), operation.id]
+    return {
+      state: {
+        ...state,
+        operators,
+        error: null,
+        analysis: null,
+        expression: formatChainExpression(state.operands, operators, operations),
+        clearLabel: 'AC',
       },
-      false,
-      operation.id,
-    )
+    }
   }
 
-  const leftOperand = currentValue(state)
+  if (state.operands.length >= MAX_EXPRESSION_OPERANDS - 1) {
+    return {
+      state: applyFail('An expression must contain between 2 and 16 operands.'),
+    }
+  }
+
+  const operands = [...state.operands, currentValue(state)]
+  const operators = [...state.operators, operation.id]
+
   return {
     state: {
       ...state,
-      leftOperand,
-      pendingOperationId: operation.id,
+      operands,
+      operators,
       overwrite: true,
       error: null,
       analysis: null,
-      expression: previewExpression(leftOperand, operation),
+      expression: formatChainExpression(operands, operators, operations),
       clearLabel: 'AC',
     },
   }
@@ -245,18 +266,16 @@ function applyEquals(state: EngineState, operations: Operation[]): EngineResult 
     return { state }
   }
 
-  if (state.pendingOperationId !== null && state.leftOperand !== null) {
+  if (isExpressionOpen(state)) {
     return enqueueAnalysis(
       state,
       operations,
       {
-        kind: 'binary',
-        operationId: state.pendingOperationId,
-        left: state.leftOperand,
-        right: currentValue(state),
+        kind: 'chain',
+        operands: [...state.operands, currentValue(state)],
+        operationIds: state.operators,
       },
       true,
-      null,
     )
   }
 
@@ -265,13 +284,11 @@ function applyEquals(state: EngineState, operations: Operation[]): EngineResult 
       state,
       operations,
       {
-        kind: 'binary',
-        operationId: state.lastBinary.operationId,
-        left: currentValue(state),
-        right: state.lastBinary.right,
+        kind: 'chain',
+        operands: [currentValue(state), state.lastBinary.right],
+        operationIds: [state.lastBinary.operationId],
       },
       true,
-      null,
     )
   }
 
@@ -281,43 +298,59 @@ function applyEquals(state: EngineState, operations: Operation[]): EngineResult 
 function applySucceed(
   state: EngineState,
   action: Extract<EngineAction, { type: 'succeed' }>,
-  operations: Operation[],
 ): EngineState {
   const input = formatOperand(action.result)
-  const queued = action.queuedOperationId
-    ? operations.find((item) => item.id === action.queuedOperationId)
-    : undefined
-  const lastBinary =
-    action.analyzed.operands.length === 2
-      ? { operationId: action.analyzed.operation, right: action.analyzed.operands[1]! }
-      : state.lastBinary
 
-  if (queued) {
-    return {
-      ...state,
-      input,
-      overwrite: true,
-      error: null,
-      leftOperand: action.result,
-      pendingOperationId: queued.id,
-      lastBinary,
-      analysis: action.analyzed.analysis,
-      expression: previewExpression(action.result, queued),
-      clearLabel: 'AC',
+  switch (action.analyzed.kind) {
+    case 'unary':
+      if (isExpressionOpen(state)) {
+        return {
+          ...state,
+          input,
+          overwrite: true,
+          error: null,
+          analysis: action.analyzed.analysis,
+          clearLabel: 'AC',
+        }
+      }
+
+      return {
+        ...state,
+        input,
+        overwrite: true,
+        error: null,
+        operands: [],
+        operators: [],
+        analysis: action.analyzed.analysis,
+        expression: action.analyzed.expression,
+        clearLabel: 'AC',
+      }
+    case 'chain': {
+      const lastOperationId = action.analyzed.operations[action.analyzed.operations.length - 1]
+      const lastOperand = action.analyzed.operands[action.analyzed.operands.length - 1]
+      const lastBinary =
+        lastOperationId !== undefined && lastOperand !== undefined
+          ? { operationId: lastOperationId, right: lastOperand }
+          : null
+
+      return {
+        ...state,
+        input,
+        overwrite: true,
+        error: null,
+        operands: [],
+        operators: [],
+        lastBinary,
+        analysis: action.analyzed.analysis,
+        expression: action.analyzed.expression,
+        clearLabel: 'AC',
+      }
     }
-  }
-
-  return {
-    ...state,
-    input,
-    overwrite: true,
-    error: null,
-    leftOperand: action.result,
-    pendingOperationId: null,
-    lastBinary,
-    analysis: action.analyzed.analysis,
-    expression: action.analyzed.expression,
-    clearLabel: 'AC',
+    default: {
+      const _exhaustive: never = action.analyzed
+      void _exhaustive
+      return state
+    }
   }
 }
 
@@ -337,7 +370,6 @@ function applyRecall(value: number): EngineState {
     ...createInitialState(),
     input,
     overwrite: true,
-    leftOperand: value,
     clearLabel: 'AC',
   }
 }
@@ -347,7 +379,6 @@ function enqueueAnalysis(
   operations: Operation[],
   draft: Parameters<typeof analyzeExpression>[0],
   recordHistory: boolean,
-  queuedOperationId: string | null,
 ): EngineResult {
   try {
     return {
@@ -356,7 +387,6 @@ function enqueueAnalysis(
         type: 'calculate',
         analyzed: analyzeExpression(draft, operations),
         recordHistory,
-        queuedOperationId,
       },
     }
   } catch (error) {
@@ -366,8 +396,8 @@ function enqueueAnalysis(
   }
 }
 
-function previewExpression(left: number, operation: Operation): string {
-  return `${formatOperand(left)} ${infixSymbol(operation)}`
+function isExpressionOpen(state: EngineState): boolean {
+  return state.operands.length > 0 && state.operators.length === state.operands.length
 }
 
 function digitCount(input: string): number {
