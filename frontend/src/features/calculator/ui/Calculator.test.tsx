@@ -45,8 +45,8 @@ describe('Calculator', () => {
     await user.click(screen.getByRole('button', { name: 'Equals' }))
 
     expect(evaluate).toHaveBeenCalledWith({ operands: [2, 3], operations: ['add'] })
-    expect(await screen.findByTestId('calculator-analysis')).toHaveTextContent('Addition of 2 and 3')
-    expect(screen.getByTestId('calculator-display')).toHaveTextContent('5')
+    expect(await screen.findByTestId('calculator-display')).toHaveTextContent('5')
+    expect(screen.queryByText('Addition of 2 and 3')).not.toBeInTheDocument()
   })
 
   it('evaluates a multi-step expression with operator precedence', async () => {

@@ -16,7 +16,6 @@ export function Calculator({ operations }: CalculatorProps) {
   const {
     input,
     expression,
-    analysis,
     error,
     overwrite,
     pendingOperationId,
@@ -62,12 +61,7 @@ export function Calculator({ operations }: CalculatorProps) {
   return (
     <div className="workspace">
       <section className="calculator-device" aria-label="Calculator" aria-busy={isCalculating}>
-        <CalculatorDisplay
-          expression={expression}
-          value={input}
-          analysis={analysis}
-          error={error}
-        />
+        <CalculatorDisplay expression={expression} value={input} error={error} />
         <CalculatorPad
           operations={operations}
           clearLabel={clearLabel}

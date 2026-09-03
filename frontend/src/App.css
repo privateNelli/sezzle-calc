@@ -28,8 +28,7 @@
   text-align: right;
 }
 
-.calculator-expression,
-.calculator-analysis {
+.calculator-expression {
   color: var(--calc-muted);
   font-size: 1.125rem;
   font-weight: 400;
@@ -38,10 +37,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.calculator-analysis {
-  font-size: 0.9375rem;
 }
 
 .calculator-value {
@@ -368,8 +363,7 @@
   background: var(--calc-line);
 }
 
-.history-expression,
-.history-analysis {
+.history-expression {
   color: var(--calc-muted);
   font-size: 0.875rem;
 }
@@ -431,8 +425,7 @@
     padding: 0.25rem 0.5rem 0.5rem;
   }
 
-  .calculator-expression,
-  .calculator-analysis {
+  .calculator-expression {
     font-size: 1rem;
     min-height: 1.35rem;
   }

@@ -50,9 +50,6 @@ export function CalculatorHistory({
                 >
                   <span className="history-expression">{entry.expression}</span>
                   <span className="history-result">= {result}</span>
-                  {entry.analysis && entry.analysis !== entry.expression ? (
-                    <span className="history-analysis">{entry.analysis}</span>
-                  ) : null}
                 </button>
               </li>
             )

@@ -31,7 +31,7 @@ describe('CalculatorHistory', () => {
     expect(screen.queryByRole('button', { name: 'Clear' })).not.toBeInTheDocument()
   })
 
-  it('recalls a result, hides duplicate analysis, and can clear the list', async () => {
+  it('recalls a result without analysis captions and can clear the list', async () => {
     const onRecall = vi.fn()
     const onClear = vi.fn()
     const onClose = vi.fn()
@@ -46,8 +46,9 @@ describe('CalculatorHistory', () => {
       />,
     )
 
-    expect(screen.getByText('Addition of 2 and 3')).toBeInTheDocument()
-    expect(screen.queryByText('1 + 2 × 3', { selector: '.history-analysis' })).not.toBeInTheDocument()
+    expect(screen.queryByText('Addition of 2 and 3')).not.toBeInTheDocument()
+    expect(screen.getByText('2 + 3')).toBeInTheDocument()
+    expect(screen.getByText('= 5')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Done' })).toHaveFocus()
 
     await user.click(screen.getByRole('button', { name: 'Recall 2 + 3 = 5' }))

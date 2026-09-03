@@ -1,13 +1,10 @@
 type CalculatorDisplayProps = {
   expression: string
   value: string
-  analysis: string | null
   error: string | null
 }
 
-export function CalculatorDisplay({ expression, value, analysis, error }: CalculatorDisplayProps) {
-  const analysisText = analysis && analysis !== expression ? analysis : null
-
+export function CalculatorDisplay({ expression, value, error }: CalculatorDisplayProps) {
   return (
     <div className="calculator-display">
       <p className="calculator-expression">{expression || '\u00a0'}</p>
@@ -22,11 +19,7 @@ export function CalculatorDisplay({ expression, value, analysis, error }: Calcul
         <p className="calculator-error" role="alert">
           {error}
         </p>
-      ) : (
-        <p className="calculator-analysis" data-testid="calculator-analysis">
-          {analysisText ?? '\u00a0'}
-        </p>
-      )}
+      ) : null}
     </div>
   )
 }
