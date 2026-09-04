@@ -4,6 +4,8 @@ import type { Operation } from '../domain/types'
 import { useCalculator } from '../hooks/use-calculator'
 import { useDesktopLayout } from '../hooks/use-desktop-layout'
 import { useTheme } from '../hooks/use-theme'
+import { ApiStatusAccordion } from './ApiStatusAccordion'
+import { ApiStatusPanel } from './ApiStatusPanel'
 import { CalculatorDisplay } from './CalculatorDisplay'
 import { CalculatorHistory } from './CalculatorHistory'
 import { CalculatorPad } from './CalculatorPad'
@@ -80,15 +82,19 @@ export function Calculator({ operations }: CalculatorProps) {
       {isDesktop ? (
         <aside className="history-panel" aria-labelledby="history-title">
           <CalculatorHistory entries={history} onRecall={recall} onClear={clearHistory} />
+          <ApiStatusPanel />
         </aside>
       ) : (
-        <HistorySheet
-          entries={history}
-          open={historyOpen}
-          onRecall={recall}
-          onClear={clearHistory}
-          onClose={() => setHistoryOpen(false)}
-        />
+        <>
+          <HistorySheet
+            entries={history}
+            open={historyOpen}
+            onRecall={recall}
+            onClear={clearHistory}
+            onClose={() => setHistoryOpen(false)}
+          />
+          <ApiStatusAccordion />
+        </>
       )}
     </div>
   )

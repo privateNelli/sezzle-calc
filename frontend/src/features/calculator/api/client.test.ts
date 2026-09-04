@@ -1,10 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { calculate, CalculatorApiError, evaluate, getOperations } from './client'
+import { getEndpointSnapshots, resetEndpointMonitor } from './monitor'
 
 describe('calculator API client', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
+    resetEndpointMonitor()
   })
 
   it('gets the available operations', async () => {
@@ -21,6 +23,13 @@ describe('calculator API client', () => {
     await expect(getOperations()).resolves.toEqual([
       { id: 'add', label: 'Addition', arity: 2, symbol: '+' },
     ])
+    expect(getEndpointSnapshots().find((snapshot) => snapshot.id === 'operations')).toMatchObject({
+      phase: 'ok',
+      lastStatus: 200,
+      lastBody: {
+        operations: [{ id: 'add', label: 'Addition', arity: 2, symbol: '+' }],
+      },
+    })
   })
 
   it('posts a calculation and returns its result', async () => {
@@ -79,6 +88,11 @@ describe('calculator API client', () => {
     await expect(calculate({ operation: 'divide', operands: [1, 0] })).rejects.toEqual(
       new CalculatorApiError('DIVISION_BY_ZERO', 'Cannot divide by zero.'),
     )
+    expect(getEndpointSnapshots().find((snapshot) => snapshot.id === 'calculate')).toMatchObject({
+      phase: 'error',
+      lastStatus: 422,
+      lastBody: { error: { code: 'DIVISION_BY_ZERO', message: 'Cannot divide by zero.' } },
+    })
   })
 
   it('surfaces catalog fetch failures as CalculatorApiError', async () => {

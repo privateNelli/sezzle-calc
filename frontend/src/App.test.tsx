@@ -34,6 +34,6 @@ describe('App', () => {
     ])
     render(<App />)
     expect(await screen.findByRole('region', { name: 'Calculator' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { level: 1, name: 'Calculator' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: "Let's do Mathematics." })).toBeInTheDocument()
   })
 })

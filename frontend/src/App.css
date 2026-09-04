@@ -1,9 +1,8 @@
 .page-shell {
   --calc-device-width: 22.5rem;
-  align-items: center;
   background: var(--calc-bg);
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   min-height: 100svh;
   padding: 0.75rem;
 }
@@ -169,7 +168,10 @@
 .history-item:focus-visible,
 .history-clear:focus-visible,
 .sheet-backdrop:focus-visible,
-.sheet-handle-hit:focus-visible {
+.sheet-handle-hit:focus-visible,
+.api-status-json:focus-visible,
+.api-accordion-toggle:focus-visible,
+.json-dialog-backdrop:focus-visible {
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }
@@ -375,6 +377,197 @@
   letter-spacing: -0.03em;
 }
 
+.api-status {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.api-status h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.75rem;
+}
+
+.api-status-list {
+  display: grid;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 0;
+}
+
+.api-status-item {
+  border: 1px solid var(--calc-line);
+  border-radius: 0.75rem;
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem 0.8rem;
+}
+
+.api-status-item-main {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.api-status-route,
+.api-status-phase,
+.api-status-time {
+  margin: 0;
+}
+
+.api-status-route {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.api-status-phase {
+  font-size: 0.875rem;
+}
+
+.api-status-time {
+  color: var(--calc-muted);
+  font-size: 0.75rem;
+}
+
+.api-status-json {
+  background: transparent;
+  border: 0;
+  color: var(--calc-accent);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.875rem;
+  justify-self: start;
+  padding: 0.15rem 0;
+}
+
+.api-status-json:disabled {
+  color: var(--calc-muted);
+  cursor: default;
+}
+
+.api-accordion {
+  margin-top: 0.75rem;
+  width: 100%;
+}
+
+.api-accordion-toggle {
+  align-items: center;
+  background: var(--calc-history);
+  border: 1px solid var(--calc-line);
+  border-radius: 0.75rem;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  width: 100%;
+}
+
+.api-accordion-toggle::after {
+  border-bottom: 2px solid var(--calc-muted);
+  border-right: 2px solid var(--calc-muted);
+  content: "";
+  height: 0.45rem;
+  transform: rotate(45deg);
+  width: 0.45rem;
+}
+
+.api-accordion-toggle[aria-expanded="true"] {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.api-accordion-toggle[aria-expanded="true"]::after {
+  transform: translateY(0.15rem) rotate(225deg);
+}
+
+.api-accordion .api-status {
+  background: var(--calc-history);
+  border: 1px solid var(--calc-line);
+  border-radius: 0 0 0.75rem 0.75rem;
+  border-top: 0;
+  padding: 0.25rem 1rem 1rem;
+}
+
+.json-dialog-root {
+  inset: 0;
+  position: fixed;
+  z-index: 40;
+}
+
+.json-dialog-backdrop {
+  background: var(--sheet-backdrop);
+  border: 0;
+  cursor: pointer;
+  inset: 0;
+  position: absolute;
+}
+
+.json-dialog {
+  background: var(--calc-history);
+  border: 1px solid var(--calc-line);
+  border-radius: 1rem;
+  box-shadow: 0 16px 40px rgb(0 0 0 / 0.35);
+  display: flex;
+  flex-direction: column;
+  inset: 12svh 0.75rem auto;
+  margin: 0 auto;
+  max-height: 76svh;
+  max-width: 40rem;
+  padding: 1rem 1.15rem 1.15rem;
+  position: relative;
+  width: calc(100% - 1.5rem);
+}
+
+.json-dialog-header {
+  align-items: start;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+
+.json-dialog-header h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.json-dialog-time {
+  color: var(--calc-muted);
+  font-size: 0.8125rem;
+  margin: 0.3rem 0 0;
+}
+
+.json-dialog-body {
+  background: color-mix(in srgb, var(--calc-bg) 72%, var(--calc-history));
+  border-radius: 0.75rem;
+  flex: 1;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  margin: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 0.85rem;
+  white-space: pre-wrap;
+}
+
+.json-dialog-body code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
 .message {
   color: var(--calc-muted);
   margin: 2rem auto;
@@ -387,23 +580,16 @@
 
 .brand-lockup {
   border: 0;
-  padding: 0.25rem 0.75rem 0.5rem;
-  width: min(100%, var(--calc-device-width));
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
 }
 
-.app-title {
-  color: var(--calc-display);
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  margin: 0;
-}
-
-.brand-desktop {
-  display: none;
-}
-
-.brand-desktop h1 {
+.brand-lockup h1 {
   font: inherit;
   margin: 0;
 }
@@ -435,11 +621,9 @@
     display: contents;
   }
 
-  .app-title {
-    display: none;
-  }
-
   .brand-lockup {
+    clip: unset;
+    clip-path: none;
     display: grid;
     gap: 0.9rem;
     grid-column: 1;
@@ -455,21 +639,7 @@
     width: auto;
   }
 
-  .brand-desktop {
-    clip: unset;
-    clip-path: none;
-    display: grid;
-    gap: 0.9rem;
-    height: auto;
-    justify-items: end;
-    margin: 0;
-    overflow: visible;
-    padding: 0;
-    position: relative;
-    width: 100%;
-  }
-
-  .brand-desktop h1 {
+  .brand-lockup h1 {
     display: grid;
     font-size: clamp(2.4rem, 4.6vw, 4.15rem);
     font-weight: 700;
@@ -613,9 +783,18 @@
     height: calc(100svh - 2rem);
     justify-self: start;
     margin-left: 1.5rem;
+    min-height: 0;
+    overflow: hidden;
     padding: 1.25rem 1.35rem 1.5rem;
     width: min(22rem, calc(100% - 1.5rem));
     z-index: 11;
+  }
+
+  .history-panel .api-status {
+    border-top: 1px solid var(--calc-line);
+    flex: 0 1 42%;
+    margin-top: 0.75rem;
+    padding-top: 1rem;
   }
 
   .bottom-sheet.history-panel {

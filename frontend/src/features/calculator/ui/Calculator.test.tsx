@@ -100,6 +100,21 @@ describe('Calculator', () => {
     expect(within(history).getAllByText('55 × 2 + 10')).toHaveLength(1)
   })
 
+  it('places the API status module under history on desktop and in an accordion on mobile', () => {
+    stubDesktopLayout(true)
+    const { unmount } = render(<Calculator operations={operations} />)
+
+    const historyPanel = screen.getByRole('complementary', { name: 'History' })
+    expect(within(historyPanel).getByRole('heading', { name: 'API' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'API endpoints' })).not.toBeInTheDocument()
+    unmount()
+
+    stubDesktopLayout(false)
+    render(<Calculator operations={operations} />)
+    expect(screen.getByRole('button', { name: 'API endpoints' })).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByRole('heading', { name: 'API' })).not.toBeInTheDocument()
+  })
+
   it('keeps history visible on desktop without a sheet or keypad toggle', async () => {
     stubDesktopLayout(true)
     vi.mocked(evaluate).mockResolvedValue({ operands: [2, 3], operations: ['add'], result: 5 })
