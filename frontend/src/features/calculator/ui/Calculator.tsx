@@ -5,6 +5,7 @@ import { useCalculator } from '../hooks/use-calculator'
 import { useDesktopLayout } from '../hooks/use-desktop-layout'
 import { useTheme } from '../hooks/use-theme'
 import { CalculatorDisplay } from './CalculatorDisplay'
+import { CalculatorHistory } from './CalculatorHistory'
 import { CalculatorPad } from './CalculatorPad'
 import { HistorySheet } from './HistorySheet'
 
@@ -67,6 +68,7 @@ export function Calculator({ operations }: CalculatorProps) {
           clearLabel={clearLabel}
           activeOperationId={activeOperationId}
           theme={theme}
+          showHistoryToggle={!isDesktop}
           historyOpen={historyOpen}
           onToggleHistory={() => setHistoryOpen((open) => !open)}
           onToggleTheme={toggleTheme}
@@ -75,13 +77,19 @@ export function Calculator({ operations }: CalculatorProps) {
           }}
         />
       </section>
-      <HistorySheet
-        entries={history}
-        open={historyOpen}
-        onRecall={recall}
-        onClear={clearHistory}
-        onClose={() => setHistoryOpen(false)}
-      />
+      {isDesktop ? (
+        <aside className="history-panel" aria-labelledby="history-title">
+          <CalculatorHistory entries={history} onRecall={recall} onClear={clearHistory} />
+        </aside>
+      ) : (
+        <HistorySheet
+          entries={history}
+          open={historyOpen}
+          onRecall={recall}
+          onClear={clearHistory}
+          onClose={() => setHistoryOpen(false)}
+        />
+      )}
     </div>
   )
 }

@@ -5,7 +5,7 @@ type CalculatorHistoryProps = {
   entries: HistoryEntry[]
   onRecall: (value: number) => void
   onClear: () => void
-  onClose: () => void
+  onClose?: () => void
   autoFocusClose?: boolean
 }
 
@@ -26,9 +26,11 @@ export function CalculatorHistory({
               Clear
             </button>
           )}
-          <button type="button" className="history-clear" onClick={onClose} autoFocus={autoFocusClose}>
-            Done
-          </button>
+          {onClose ? (
+            <button type="button" className="history-clear" onClick={onClose} autoFocus={autoFocusClose}>
+              Done
+            </button>
+          ) : null}
         </div>
       </header>
 

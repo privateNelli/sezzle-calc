@@ -22,7 +22,7 @@ Vitest + Testing Library + jsdom (`frontend/vite.config.ts`, `src/test/setup.ts`
 
 | File | Focus |
 | --- | --- |
-| `App.test.tsx` | Catalog loading, API-down alert, calculator mount |
+| `App.test.tsx` | Catalog loading, API-down alert, calculator mount, brand heading |
 | `api/client.test.ts` | Fetch client and `CalculatorApiError` |
 | `domain/expression.test.ts` | Analysis strings and arity checks |
 | `domain/history.test.ts` | Cap, serialize, ignore junk JSON |
@@ -32,7 +32,7 @@ Vitest + Testing Library + jsdom (`frontend/vite.config.ts`, `src/test/setup.ts`
 | `hooks/use-calculator.test.ts` | API orchestration, busy lock, history |
 | `hooks/use-theme.test.ts` | Theme parse and persistence |
 | `hooks/use-desktop-layout.test.ts` | Desktop media query |
-| `ui/Calculator.test.tsx` | UI: calculate, history sheet, theme, keyboard |
+| `ui/Calculator.test.tsx` | UI: calculate, mobile history sheet, desktop history panel, theme, keyboard |
 | `ui/CalculatorDisplay.test.tsx` | Analysis vs error vs value size |
 | `ui/CalculatorHistory.test.tsx` | Empty, recall, clear |
 | `ui/CalculatorPad.test.tsx` | Key dispatch and leftover utility slots |

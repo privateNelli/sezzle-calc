@@ -19,6 +19,7 @@ describe('CalculatorPad', () => {
         clearLabel="C"
         activeOperationId="add"
         theme="dark"
+        showHistoryToggle
         historyOpen={false}
         onToggleHistory={vi.fn()}
         onToggleTheme={vi.fn()}
@@ -51,6 +52,7 @@ describe('CalculatorPad', () => {
         clearLabel="AC"
         activeOperationId={null}
         theme="light"
+        showHistoryToggle
         historyOpen
         onToggleHistory={vi.fn()}
         onToggleTheme={vi.fn()}
@@ -63,5 +65,24 @@ describe('CalculatorPad', () => {
     expect(history).toHaveAttribute('aria-expanded', 'true')
     expect(history.closest('.pad-row')).toBe(theme.closest('.pad-row'))
     expect(history.closest('.pad-row')?.querySelectorAll('.key')).toHaveLength(2)
+  })
+
+  it('hides the history toggle when the panel is always visible', () => {
+    render(
+      <CalculatorPad
+        operations={operations}
+        clearLabel="AC"
+        activeOperationId={null}
+        theme="light"
+        showHistoryToggle={false}
+        historyOpen={false}
+        onToggleHistory={vi.fn()}
+        onToggleTheme={vi.fn()}
+        onDispatch={vi.fn()}
+      />,
+    )
+
+    expect(screen.queryByRole('button', { name: 'History' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Switch to dark mode' })).toBeInTheDocument()
   })
 })

@@ -1,6 +1,6 @@
 # Frontend
 
-Vite + React 19 + TypeScript. The calculator is a single feature with layered folders. `App` imports only the public surface (`Calculator`, `getOperations`, `Operation`).
+Vite + React 19 + TypeScript. The calculator is a single feature with layered folders. `App` imports the public calculator surface and the desktop brand lockup.
 
 `App` loads the operation catalog on mount. If the API is down, it shows an alert and does not render the keypad.
 
@@ -9,6 +9,7 @@ Vite + React 19 + TypeScript. The calculator is a single feature with layered fo
 ```text
 frontend/src/
   App.tsx
+  BrandLockup.tsx         Desktop heading ("Let's do Mathematics.")
   features/calculator/
     index.ts              Public exports
     api/client.ts         HTTP client
@@ -33,8 +34,8 @@ Dependency direction: `ui` → `hooks` → `api` + `domain`. `domain` never impo
 | `hooks/use-calculator.ts` | Engine + API calls + history persistence |
 | `hooks/use-theme.ts` | `data-theme` on `<html>`; persist light/dark |
 | `hooks/use-desktop-layout.ts` | Desktop vs mobile layout query |
-| `ui/Calculator.tsx` | Shell, keyboard shortcuts, history sheet |
-| `ui/CalculatorPad.tsx` | Keys plus History and theme in leftover slots |
+| `ui/Calculator.tsx` | Shell, keyboard shortcuts, desktop history panel |
+| `ui/CalculatorPad.tsx` | Keys plus History (mobile) and theme in leftover slots |
 | `ui/HistorySheet.tsx` | Modal bottom sheet; drag/keyboard resize on mobile |
 | `ui/sheet-height.ts` | Snap points and dismiss threshold for the sheet |
 
@@ -59,9 +60,10 @@ Chaining (`1 + 2 × 3`) keeps the full expression until `=`. The API applies ope
 - Key `aria-label`s use operation labels from the API (`Addition`, `Division`, …).
 - Display uses `aria-live="polite"`.
 - API and calculation errors use `role="alert"`.
-- History sheet is `role="dialog"` with backdrop, Done, and Escape.
+- History sheet is `role="dialog"` with backdrop, Done, and Escape on small screens.
+- On desktop, a left-column heading lockup sits beside the keypad; it stays visually hidden on small screens.
 - On small screens the sheet handle is a vertical slider: drag or Arrow keys change height; drag past the bottom snap dismisses.
-- Theme and history controls fill the unused last-row keypad cells.
+- Theme and history controls fill the unused last-row keypad cells on small screens.
 
 ## Environment
 

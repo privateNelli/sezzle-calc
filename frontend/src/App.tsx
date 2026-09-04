@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 
+import { BrandLockup } from './BrandLockup'
 import { Calculator, getOperations, type Operation } from './features/calculator'
 import './App.css'
 
@@ -15,7 +16,7 @@ function App() {
 
   return (
     <main className="page-shell">
-      <h1 className="visually-hidden">Calculator</h1>
+      <BrandLockup />
       {error ? (
         <p className="message error" role="alert">
           {error}

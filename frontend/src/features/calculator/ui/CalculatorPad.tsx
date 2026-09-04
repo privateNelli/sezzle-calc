@@ -8,6 +8,7 @@ type CalculatorPadProps = {
   clearLabel: 'AC' | 'C'
   activeOperationId: string | null
   theme: Theme
+  showHistoryToggle: boolean
   historyOpen: boolean
   onToggleHistory: () => void
   onToggleTheme: () => void
@@ -19,6 +20,7 @@ export function CalculatorPad({
   clearLabel,
   activeOperationId,
   theme,
+  showHistoryToggle,
   historyOpen,
   onToggleHistory,
   onToggleTheme,
@@ -26,7 +28,8 @@ export function CalculatorPad({
 }: CalculatorPadProps) {
   const rows = buildKeypadRows(operations, clearLabel)
   const lastIndex = rows.length - 1
-  const lastRowHasRoom = (rows[lastIndex]?.length ?? 0) <= 2
+  const utilityCount = showHistoryToggle ? 2 : 1
+  const lastRowHasRoom = (rows[lastIndex]?.length ?? 0) <= 4 - utilityCount
 
   return (
     <div className="calculator-pad">
@@ -43,6 +46,7 @@ export function CalculatorPad({
           {index === lastIndex && lastRowHasRoom ? (
             <UtilityKeys
               theme={theme}
+              showHistoryToggle={showHistoryToggle}
               historyOpen={historyOpen}
               onToggleHistory={onToggleHistory}
               onToggleTheme={onToggleTheme}
@@ -54,6 +58,7 @@ export function CalculatorPad({
         <div className="pad-row">
           <UtilityKeys
             theme={theme}
+            showHistoryToggle={showHistoryToggle}
             historyOpen={historyOpen}
             onToggleHistory={onToggleHistory}
             onToggleTheme={onToggleTheme}
@@ -66,25 +71,34 @@ export function CalculatorPad({
 
 type UtilityKeysProps = {
   theme: Theme
+  showHistoryToggle: boolean
   historyOpen: boolean
   onToggleHistory: () => void
   onToggleTheme: () => void
 }
 
-function UtilityKeys({ theme, historyOpen, onToggleHistory, onToggleTheme }: UtilityKeysProps) {
+function UtilityKeys({
+  theme,
+  showHistoryToggle,
+  historyOpen,
+  onToggleHistory,
+  onToggleTheme,
+}: UtilityKeysProps) {
   const themeLabel = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
 
   return (
     <>
-      <button
-        type="button"
-        className="key key-light"
-        aria-label="History"
-        aria-expanded={historyOpen}
-        onClick={onToggleHistory}
-      >
-        <HistoryIcon />
-      </button>
+      {showHistoryToggle ? (
+        <button
+          type="button"
+          className="key key-light"
+          aria-label="History"
+          aria-expanded={historyOpen}
+          onClick={onToggleHistory}
+        >
+          <HistoryIcon />
+        </button>
+      ) : null}
       <button type="button" className="key key-light" aria-label={themeLabel} onClick={onToggleTheme}>
         <span className="theme-glyph">
           <SunIcon />

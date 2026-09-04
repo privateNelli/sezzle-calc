@@ -60,4 +60,11 @@ describe('CalculatorHistory', () => {
     await user.click(screen.getByRole('button', { name: 'Done' }))
     expect(onClose).toHaveBeenCalledTimes(1)
   })
+
+  it('omits Done when the panel cannot be closed', () => {
+    render(<CalculatorHistory entries={entries} onRecall={vi.fn()} onClear={vi.fn()} />)
+
+    expect(screen.queryByRole('button', { name: 'Done' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Clear' })).toBeInTheDocument()
+  })
 })

@@ -100,6 +100,36 @@ describe('Calculator', () => {
     expect(within(history).getAllByText('55 × 2 + 10')).toHaveLength(1)
   })
 
+  it('keeps history visible on desktop without a sheet or keypad toggle', async () => {
+    stubDesktopLayout(true)
+    vi.mocked(evaluate).mockResolvedValue({ operands: [2, 3], operations: ['add'], result: 5 })
+    const user = userEvent.setup()
+    render(<Calculator operations={operations} />)
+
+    const historyPanel = screen.getByRole('complementary', { name: 'History' })
+    expect(screen.queryByRole('dialog', { name: 'History' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'History' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Done' })).not.toBeInTheDocument()
+    expect(within(historyPanel).getByRole('status')).toHaveTextContent('No calculations yet.')
+
+    await user.click(screen.getByRole('button', { name: '2' }))
+    await user.click(screen.getByRole('button', { name: 'Addition' }))
+    await user.click(screen.getByRole('button', { name: '3' }))
+    await user.click(screen.getByRole('button', { name: 'Equals' }))
+
+    const history = await within(historyPanel).findByRole('list', { name: 'Calculation history' })
+    expect(within(history).getByText('2 + 3')).toBeInTheDocument()
+    expect(within(history).getByText('= 5')).toBeInTheDocument()
+
+    await user.keyboard('{Escape}')
+    expect(screen.getByRole('complementary', { name: 'History' })).toBeInTheDocument()
+    expect(screen.getByTestId('calculator-display')).toHaveTextContent('0')
+
+    await user.click(within(history).getByRole('button', { name: 'Recall 2 + 3 = 5' }))
+    expect(screen.getByTestId('calculator-display')).toHaveTextContent('5')
+    expect(screen.getByRole('complementary', { name: 'History' })).toBeInTheDocument()
+  })
+
   it('records a successful calculation in history and recalls the result', async () => {
     vi.mocked(evaluate).mockResolvedValue({ operands: [2, 3], operations: ['add'], result: 5 })
     const user = userEvent.setup()
@@ -213,17 +243,15 @@ describe('Calculator', () => {
     expect(document.documentElement).toHaveAttribute('data-theme', 'dark')
   })
 
-  it('lets the calculator keep taking input while history is open on desktop', async () => {
+  it('lets the calculator keep taking input with history visible on desktop', async () => {
     stubDesktopLayout(true)
     const user = userEvent.setup()
     render(<Calculator operations={operations} />)
 
-    await user.click(screen.getByRole('button', { name: 'History' }))
-    expect(screen.getByRole('dialog', { name: 'History' })).toBeInTheDocument()
+    expect(screen.getByRole('complementary', { name: 'History' })).toBeInTheDocument()
 
     await user.keyboard('7')
     expect(screen.getByTestId('calculator-display')).toHaveTextContent('7')
-    expect(screen.getByRole('dialog', { name: 'History' })).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: '8' }))
     expect(screen.getByTestId('calculator-display')).toHaveTextContent('78')

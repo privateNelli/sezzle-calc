@@ -1,8 +1,9 @@
 .page-shell {
   --calc-device-width: 22.5rem;
+  align-items: center;
   background: var(--calc-bg);
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   min-height: 100svh;
   padding: 0.75rem;
 }
@@ -384,6 +385,33 @@
   color: var(--calc-error);
 }
 
+.brand-lockup {
+  border: 0;
+  padding: 0.25rem 0.75rem 0.5rem;
+  width: min(100%, var(--calc-device-width));
+}
+
+.app-title {
+  color: var(--calc-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.brand-desktop {
+  display: none;
+}
+
+.brand-desktop h1 {
+  font: inherit;
+  margin: 0;
+}
+
+.brand-tagline {
+  margin: 0;
+}
+
 @media (min-width: 48rem) {
   .page-shell {
     --gap: 0.6rem;
@@ -405,6 +433,84 @@
 
   .workspace {
     display: contents;
+  }
+
+  .app-title {
+    display: none;
+  }
+
+  .brand-lockup {
+    display: grid;
+    gap: 0.9rem;
+    grid-column: 1;
+    height: auto;
+    justify-items: end;
+    justify-self: stretch;
+    margin: 0;
+    max-width: none;
+    overflow: visible;
+    padding: 0 1.5rem 0 0;
+    position: relative;
+    text-align: right;
+    width: auto;
+  }
+
+  .brand-desktop {
+    clip: unset;
+    clip-path: none;
+    display: grid;
+    gap: 0.9rem;
+    height: auto;
+    justify-items: end;
+    margin: 0;
+    overflow: visible;
+    padding: 0;
+    position: relative;
+    width: 100%;
+  }
+
+  .brand-desktop h1 {
+    display: grid;
+    font-size: clamp(2.4rem, 4.6vw, 4.15rem);
+    font-weight: 700;
+    justify-items: stretch;
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+    width: 100%;
+  }
+
+  .brand-lead {
+    color: var(--calc-display);
+  }
+
+  .brand-mark {
+    background: var(--calc-accent);
+    border-radius: 0 999px 999px 0;
+    color: #000000;
+    display: block;
+    margin-left: -1.5rem;
+    padding: 0.12em 10px 0.18em 1.5rem;
+    text-align: right;
+    white-space: nowrap;
+    width: calc(100% + 1.5rem + 10px);
+  }
+
+  .brand-tagline {
+    align-items: center;
+    color: var(--calc-display);
+    display: flex;
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    font-weight: 400;
+    gap: 0.7rem;
+    justify-content: flex-end;
+    letter-spacing: -0.02em;
+    margin-top: 0.15rem;
+  }
+
+  .brand-arrow {
+    display: block;
+    height: 0.7rem;
+    width: 2.75rem;
   }
 
   .calculator-device {
@@ -498,22 +604,28 @@
   }
 
   .history-panel {
-    animation: history-slide-in var(--theme-duration) var(--theme-easing);
-    border-radius: 1.25rem;
-    bottom: auto;
-    box-shadow: 0 8px 32px rgb(0 0 0 / 0.28);
+    background: var(--calc-history);
+    border: var(--frame-width) solid var(--calc-line);
+    border-radius: var(--frame-radius);
+    display: flex;
+    flex-direction: column;
     grid-column: 3;
     height: calc(100svh - 2rem);
     justify-self: start;
-    left: auto;
     margin-left: 1.5rem;
-    max-height: none;
-    max-width: none;
     padding: 1.25rem 1.35rem 1.5rem;
-    position: relative;
-    right: auto;
     width: min(22rem, calc(100% - 1.5rem));
     z-index: 11;
+  }
+
+  .bottom-sheet.history-panel {
+    animation: history-slide-in var(--theme-duration) var(--theme-easing);
+    bottom: auto;
+    left: auto;
+    max-height: none;
+    max-width: none;
+    position: relative;
+    right: auto;
   }
 
   .sheet-handle-hit {
