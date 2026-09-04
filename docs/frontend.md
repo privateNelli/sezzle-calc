@@ -2,7 +2,7 @@
 
 Vite + React 19 + TypeScript. The calculator is a single feature with layered folders. `App` imports the public calculator surface and the desktop brand lockup.
 
-`App` loads the operation catalog on mount. If the API is down, it shows an alert and does not render the keypad. Successful catalog loads also update the API status row for `GET /api/v1/operations`.
+`App` probes `GET /health` and loads the operation catalog on mount. Health failures do not block the keypad; they only update the API status row. If the catalog request fails, it shows an alert and does not render the keypad. Successful catalog loads also update the API status row for `GET /api/v1/operations`.
 
 ## Layout
 
@@ -25,7 +25,7 @@ Dependency direction: `ui` → `hooks` → `api` + `domain`. `domain` never impo
 
 | Path | Responsibility |
 | --- | --- |
-| `api/client.ts` | `getOperations` / `calculate` / `evaluate`; maps HTTP errors to `CalculatorApiError`; notifies the monitor |
+| `api/client.ts` | `getHealth` / `getOperations` / `calculate` / `evaluate`; maps HTTP errors to `CalculatorApiError`; notifies the monitor |
 | `api/monitor.ts` | Endpoint list, phases (`idle` / `calling` / `ok` / `error`), last status, JSON body, timestamp |
 | `domain/types.ts` | Shared catalog type (`Operation`) |
 | `domain/engine.ts` | Digit entry, AC/C, multi-step chaining, unary vs binary, equals repeat |
@@ -62,7 +62,7 @@ The monitor lists every documented HTTP surface:
 
 | id | Method | Path | When the SPA updates it |
 | --- | --- | --- | --- |
-| `health` | `GET` | `/health` | Never (row stays idle; Docker/`Invoke-RestMethod` still hit this path) |
+| `health` | `GET` | `/health` | Once on SPA mount (`App`); Docker/`Invoke-RestMethod` still hit this path |
 | `operations` | `GET` | `/api/v1/operations` | Catalog load in `App` |
 | `calculate` | `POST` | `/api/v1/calculate` | Unary keys (`√`, `%`) |
 | `evaluate` | `POST` | `/api/v1/evaluate` | Equals on a binary chain |

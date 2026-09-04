@@ -1,12 +1,27 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { calculate, CalculatorApiError, evaluate, getOperations } from './client'
+import { calculate, CalculatorApiError, evaluate, getHealth, getOperations } from './client'
 import { getEndpointSnapshots, resetEndpointMonitor } from './monitor'
 
 describe('calculator API client', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
     resetEndpointMonitor()
+  })
+
+  it('gets the health probe and records it on the monitor', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ status: 'ok' }), { status: 200 }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(getHealth()).resolves.toEqual({ status: 'ok' })
+    expect(fetchMock).toHaveBeenCalledWith('http://localhost:8080/health')
+    expect(getEndpointSnapshots().find((snapshot) => snapshot.id === 'health')).toMatchObject({
+      phase: 'ok',
+      lastStatus: 200,
+      lastBody: { status: 'ok' },
+    })
   })
 
   it('gets the available operations', async () => {

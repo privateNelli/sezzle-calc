@@ -63,6 +63,8 @@ The API listens on `http://localhost:8080` by default. Set `CALCULATOR_API_ADDR`
 
 ### Health check
 
+The SPA calls this once on mount so the API status row is not idle. Docker `HEALTHCHECK` uses the same path.
+
 ```powershell
 Invoke-RestMethod http://localhost:8080/health
 ```

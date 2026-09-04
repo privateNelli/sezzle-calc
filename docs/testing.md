@@ -22,7 +22,7 @@ Vitest + Testing Library + jsdom (`frontend/vite.config.ts`, `src/test/setup.ts`
 
 | File | Focus |
 | --- | --- |
-| `App.test.tsx` | Catalog loading, API-down alert, calculator mount, brand heading |
+| `App.test.tsx` | Health probe on mount, catalog loading, API-down alert, calculator mount, brand heading |
 | `BrandLockup.test.tsx` | Desktop heading markup |
 | `api/client.test.ts` | Fetch client, `CalculatorApiError`, and monitor side effects |
 | `api/monitor.test.ts` | Idle catalog, calling/ok/error, subscribe, JSON/time format |

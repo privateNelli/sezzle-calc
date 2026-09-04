@@ -30,6 +30,10 @@ type ApiErrorResponse = {
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
 
+export type HealthStatus = {
+  status: string
+}
+
 export class CalculatorApiError extends Error {
   public readonly code: string
 
@@ -41,6 +45,10 @@ export class CalculatorApiError extends Error {
     this.name = 'CalculatorApiError'
     this.code = code
   }
+}
+
+export async function getHealth(): Promise<HealthStatus> {
+  return requestJson<HealthStatus>('health', () => fetch(`${apiBaseUrl}/health`))
 }
 
 export async function getOperations(): Promise<Operation[]> {

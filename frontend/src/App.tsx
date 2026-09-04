@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import { BrandLockup } from './BrandLockup'
-import { Calculator, getOperations, type Operation } from './features/calculator'
+import { Calculator, getHealth, getOperations, type Operation } from './features/calculator'
 import './App.css'
 
 function App() {
@@ -9,6 +9,7 @@ function App() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    void getHealth().catch(() => undefined)
     getOperations()
       .then(setOperations)
       .catch(() => setError('The calculator service is unavailable. Start the backend and try again.'))

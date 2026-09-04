@@ -26,7 +26,7 @@ Visible focus rings, named buttons, live display, alert errors, dialog history, 
 
 ## Client-only history, theme, and API snapshots
 
-History is a UX feature, not a multi-user store. `localStorage` avoids backend scope creep for an assignment of a few hours. API endpoint status is also client-only: the HTTP client records the last call in memory so reviewers can see catalog, calculate, and evaluate traffic without a tracing backend. `GET /health` is listed because it is part of the public surface (Docker health check); the SPA does not poll it.
+History is a UX feature, not a multi-user store. `localStorage` avoids backend scope creep for an assignment of a few hours. API endpoint status is also client-only: the HTTP client records the last call in memory so reviewers can see health, catalog, calculate, and evaluate traffic without a tracing backend. `GET /health` is probed once on SPA mount so the status row is not idle; Docker still uses the same path. The SPA does not poll it on an interval.
 
 ## Desktop vs mobile chrome
 
@@ -42,5 +42,5 @@ Optional in the brief. One process group is simpler to run than two published po
 - Exact decimal / money arithmetic
 - Parentheses or a free-form expression string parser
 - Server-side history or request logs
-- SPA polling of `/health`
+- Interval polling of `/health`
 - Kubernetes / Compose / cloud deploy docs

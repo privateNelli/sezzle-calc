@@ -9,6 +9,7 @@ The client never implements the math. It builds either a unary `{ operation, ope
 
 ```text
 Browser (Vite :5173 or Nginx :80)
+  │  GET  /health
   │  GET  /api/v1/operations
   │  POST /api/v1/calculate
   │  POST /api/v1/evaluate
@@ -39,7 +40,7 @@ Dockerfile        Multi-stage image for both layers
 
 | Concern | Owner |
 | --- | --- |
-| Operation catalog and arity | API (`GET /api/v1/operations`) |
+| Process liveness | API (`GET /health`; SPA probes once on mount) |
 | Arithmetic and numeric edge cases | `backend/internal/calculator` |
 | Digit entry, chaining, AC/C, equals | `frontend` `domain/engine.ts` |
 | Human-readable expression and analysis | `frontend` `domain/expression.ts` |
