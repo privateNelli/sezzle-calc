@@ -1,3 +1,9 @@
+# Frontend (Vite)
+
+Calculator UI for this repo. Product docs: [docs/frontend.md](../docs/frontend.md). Run locally from the repo root as described in the root [README](../README.md).
+
+The rest of this file is the Vite + React template note (plugins, Oxlint).
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.

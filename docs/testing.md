@@ -23,7 +23,9 @@ Vitest + Testing Library + jsdom (`frontend/vite.config.ts`, `src/test/setup.ts`
 | File | Focus |
 | --- | --- |
 | `App.test.tsx` | Catalog loading, API-down alert, calculator mount, brand heading |
-| `api/client.test.ts` | Fetch client and `CalculatorApiError` |
+| `BrandLockup.test.tsx` | Desktop heading markup |
+| `api/client.test.ts` | Fetch client, `CalculatorApiError`, and monitor side effects |
+| `api/monitor.test.ts` | Idle catalog, calling/ok/error, subscribe, JSON/time format |
 | `domain/expression.test.ts` | Analysis strings and arity checks |
 | `domain/history.test.ts` | Cap, serialize, ignore junk JSON |
 | `domain/engine.test.ts` | Keypad state machine |
@@ -32,12 +34,13 @@ Vitest + Testing Library + jsdom (`frontend/vite.config.ts`, `src/test/setup.ts`
 | `hooks/use-calculator.test.ts` | API orchestration, busy lock, history |
 | `hooks/use-theme.test.ts` | Theme parse and persistence |
 | `hooks/use-desktop-layout.test.ts` | Desktop media query |
-| `ui/Calculator.test.tsx` | UI: calculate, mobile history sheet, desktop history panel, theme, keyboard |
+| `ui/Calculator.test.tsx` | UI: calculate, mobile history sheet, desktop history panel, API layout, theme, keyboard |
 | `ui/CalculatorDisplay.test.tsx` | Analysis vs error vs value size |
 | `ui/CalculatorHistory.test.tsx` | Empty, recall, clear |
 | `ui/CalculatorPad.test.tsx` | Key dispatch and leftover utility slots |
 | `ui/sheet-height.test.ts` | Bottom-sheet snap points and dismiss threshold |
 | `ui/HistorySheet.test.tsx` | Drag, keyboard resize, dismiss |
+| `ui/ApiStatusPanel.test.tsx` | Idle/calling/ok rows, JSON dialog, accordion expand |
 
 ```powershell
 Set-Location .\frontend
@@ -47,7 +50,7 @@ npm run lint
 npm run build
 ```
 
-`npm run build` includes `tsc -b`. There is no Playwright suite; browser verification is manual against Vite or the Docker image.
+`npm run build` includes `tsc -b`. `src/test/setup.ts` resets the API monitor between tests. There is no Playwright suite; browser verification is manual against Vite or the Docker image.
 
 ## What is intentionally untested
 

@@ -14,7 +14,7 @@ The iOS keypad needs a local state machine (digits, pending operator, chaining).
 
 ## Layered calculator feature
 
-The React calculator is one feature with four folders: `domain` (pure engine, expression, history), `api` (fetch), `hooks` (orchestration), `ui` (presentation). Domain must not import the HTTP client. Catalog types live in `domain/types.ts`. `App` consumes only `features/calculator` public exports.
+The React calculator is one feature with four folders: `domain` (pure engine, expression, history), `api` (fetch + in-memory monitor), `hooks` (orchestration), `ui` (presentation). Domain must not import the HTTP client. Catalog types live in `domain/types.ts`. `App` consumes only `features/calculator` public exports.
 
 ## Minimal dependencies
 
@@ -22,11 +22,15 @@ Go: standard library. React: Vite, Vitest, Testing Library. No Redux, no router,
 
 ## Accessibility over chrome
 
-Visible focus rings, named buttons, live display, alert errors, dialog history. Visual style follows iOS calculator conventions (circular keys, orange operators, wide zero).
+Visible focus rings, named buttons, live display, alert errors, dialog history, dialog JSON. Visual style follows iOS calculator conventions (circular keys, orange operators, wide zero).
 
-## Client-only history and theme
+## Client-only history, theme, and API snapshots
 
-History is a UX feature, not a multi-user store. `localStorage` avoids backend scope creep for an assignment of a few hours.
+History is a UX feature, not a multi-user store. `localStorage` avoids backend scope creep for an assignment of a few hours. API endpoint status is also client-only: the HTTP client records the last call in memory so reviewers can see catalog, calculate, and evaluate traffic without a tracing backend. `GET /health` is listed because it is part of the public surface (Docker health check); the SPA does not poll it.
+
+## Desktop vs mobile chrome
+
+Desktop keeps history (and API status) visible beside the keypad so the sheet overlay is unnecessary. Mobile keeps the iOS sheet and collapses API status so the keypad stays primary.
 
 ## Single Docker image
 
@@ -37,5 +41,6 @@ Optional in the brief. One process group is simpler to run than two published po
 - Auth, rate limits, TLS termination in-app
 - Exact decimal / money arithmetic
 - Parentheses or a free-form expression string parser
-- Server-side history
+- Server-side history or request logs
+- SPA polling of `/health`
 - Kubernetes / Compose / cloud deploy docs

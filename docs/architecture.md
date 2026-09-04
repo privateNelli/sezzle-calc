@@ -3,7 +3,7 @@
 The product is a calculator with two deployable pieces:
 
 1. A **Go REST API** that owns arithmetic and input validation.
-2. A **React + TypeScript** client that owns keypad UX, expression analysis, history, and theme.
+2. A **React + TypeScript** client that owns keypad UX, expression analysis, history, theme, and live API call status.
 
 The client never implements the math. It builds either a unary `{ operation, operands }` request or a multi-step `{ operands, operations }` expression, then calls the API. Arithmetic stays in one place.
 
@@ -46,8 +46,11 @@ Dockerfile        Multi-stage image for both layers
 | Unary arithmetic | `POST /api/v1/calculate` |
 | Multi-step expressions and precedence | `POST /api/v1/evaluate` |
 | History and theme | Browser `localStorage` |
+| Last API call per endpoint | In-memory store (`frontend` `api/monitor.ts`) |
 
-History and theme are client-only. There is no user account or history endpoint.
+History and theme are client-only. There is no user account or history endpoint. API snapshots reset on page reload.
+
+On viewports `min-width: 48rem`, the workspace is brand lockup + keypad + a side panel (history, then API status). On smaller screens, history is a bottom sheet and API status sits in an accordion under the keypad.
 
 ## Numeric model
 

@@ -1,6 +1,6 @@
 # Full-stack calculator
 
-A small calculator application with a React + TypeScript client and a Go REST API. The client obtains available operations from the API, sends calculations to it, and displays accessible loading, validation, and error states.
+A small calculator application with a React + TypeScript client and a Go REST API. The client obtains available operations from the API, sends calculations to it, and displays accessible loading, validation, and error states. An in-app API status module shows live request phase, last JSON body, and timestamp for the documented endpoints.
 
 ## New device (agents: execute this)
 
@@ -146,8 +146,8 @@ go vet ./...
 - **Contract-first API:** `GET /api/v1/operations` is the source of operation labels and arity, preventing the client from duplicating calculation rules. `POST /api/v1/calculate` uses a stable, versioned request and response contract.
 - **Pure calculation domain:** Calculation rules reside in `backend/internal/calculator`; HTTP handlers only parse, validate, and serialize. This makes edge cases fast to unit test.
 - **Boundary validation:** The API rejects malformed JSON, unknown fields, invalid operation arity, non-finite values, division by zero, negative square roots, and non-finite results.
-- **Minimal dependencies:** Go uses the standard library. React uses Vite, Vitest, and Testing Library. No state-management library is warranted for a single form.
-- **Accessible, responsive UI:** Native form controls have visible labels and focus states; results use `aria-live`, errors use `role="alert"`, and the layout reduces to one column on small screens.
+- **Minimal dependencies:** Go uses the standard library. React uses Vite, Vitest, and Testing Library. No Redux or router; keypad state is a local engine plus an in-memory API monitor.
+- **Accessible, responsive UI:** Keypad buttons have visible labels and focus states; results use `aria-live`, errors use `role="alert"`. Desktop shows a side history panel plus API status; small screens use a history sheet and an API accordion. JSON responses open in a modal dialog.
 - **Numeric model:** The API uses IEEE 754 `float64`, appropriate for a general arithmetic demo. It is not suitable for currency or other domains that require exact decimal arithmetic.
 - **Single Docker image:** Multi-stage builds compile Go and React independently, then Nginx serves the static UI and reverse-proxies API calls to the Go process on the container loopback interface.
 
@@ -209,6 +209,27 @@ Cursor executed the accepted plan. The prompt was already in English.
 - **English:** I need to be able to enter extended expressions, not only pairs.
 
 **Output:** Keypad chains binary operators until `=`. Additive `POST /api/v1/evaluate` evaluates the full operand/operation lists with precedence. Unary operations still use `POST /api/v1/calculate`. Pair-only `calculate` remains unchanged.
+
+### 8. Desktop layout and brand lockup
+
+- **Spanish:** Adapta también para desktop… En desktop dejemos el historial fijo… A la izquierda crea ese texto con ese formato.
+- **English:** Adapt the layout for desktop as well… Keep history fixed on desktop… On the left, create that heading with that format.
+
+**Output:** Wide viewports (`min-width: 48rem`) show a three-column workspace: brand lockup (“Let's do Mathematics.”), keypad, and a persistent history panel. Small screens keep the iOS keypad and history bottom sheet. Physical keyboard input works when the mobile sheet is closed.
+
+### 9. Layered frontend feature
+
+- **Spanish:** Refactoriza la arquitectura, está todo desordenado en features.
+- **English:** Refactor the architecture; everything in features is messy.
+
+**Output:** Calculator code split into `api/`, `domain/`, `hooks/`, and `ui/`. Domain stays free of HTTP. Public exports go through `features/calculator/index.ts`.
+
+### 10. API endpoint status
+
+- **Spanish:** Crea un módulo debajo de history con el estado de los endpoints de la API, y que muestren cuando están siendo llamadas y mostrar última respuesta (JSON, fecha y hora). Para desktop, para móvil debajo de la calculadora usar un módulo accordion con esto dentro; en ambos debe mostrar el JSON en un popup formateado.
+- **English:** Create a module under history with API endpoint status: show when endpoints are being called, and show the last response (JSON, date, and time). On desktop keep it under history; on mobile put it in an accordion under the calculator. In both layouts, show the JSON in a formatted popup.
+
+**Output:** In-memory monitor in `api/monitor.ts`, wired from the HTTP client. Desktop: API list under history. Mobile: “API endpoints” accordion. “View JSON response” opens a dialog with pretty-printed JSON. `GET /health` is listed but the SPA does not call it, so that row stays idle unless a call is recorded.
 
 ## Repository publication
 

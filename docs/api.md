@@ -6,6 +6,8 @@ All JSON responses use `Content-Type: application/json; charset=utf-8`. Request 
 
 There is no authentication. Treat the API as a local demo service.
 
+The React app lists these same routes in the API status module. It records live traffic for `operations`, `calculate`, and `evaluate`. It does not call `/health`; that path remains for Docker `HEALTHCHECK` and manual probes.
+
 ## Endpoints
 
 ### `GET /health`
