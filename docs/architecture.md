@@ -34,7 +34,7 @@ Dockerfile        Multi-stage image for both layers
 
 **Local development:** two processes. Vite serves the UI with hot reload. The API listens on `:8080` with CORS limited to `http://localhost:5173`. Set `VITE_API_BASE_URL` (see `frontend/.env.example`).
 
-**Docker:** one container. Nginx serves `frontend/dist` on port 80 and reverse-proxies `/api/` and `/health` to the Go binary on loopback `:8080`. The frontend is built with `VITE_API_BASE_URL=""`, so the browser uses same-origin URLs.
+**Docker:** one container. Nginx serves `frontend/dist` on port 80 and reverse-proxies `/api/` and `/health` to the Go binary at `127.0.0.1:8080` (`CALCULATOR_API_ADDR`). The frontend is built with `node:22-alpine` and `VITE_API_BASE_URL=""`, so the browser uses same-origin URLs (including `GET /health` on mount).
 
 ## Data ownership
 

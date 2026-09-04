@@ -18,6 +18,8 @@ Handlers parse and serialize. They do not contain formulas. `calculator.Calculat
 | --- | --- | --- |
 | `CALCULATOR_API_ADDR` | `:8080` | `http.Server.Addr` |
 
+Local `go run` binds all interfaces on `:8080`. The Docker image sets `CALCULATOR_API_ADDR=127.0.0.1:8080` so only Nginx on the same container can reach the API.
+
 No database, secrets, or config file.
 
 ## Run

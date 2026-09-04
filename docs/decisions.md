@@ -34,7 +34,7 @@ Desktop keeps history (and API status) visible beside the keypad so the sheet ov
 
 ## Single Docker image
 
-Optional in the brief. One process group is simpler to run than two published ports. Nginx + loopback API matches how a small static+API demo is usually shipped.
+Optional in the brief. One process group is simpler to run than two published ports. Nginx + loopback API (`CALCULATOR_API_ADDR=127.0.0.1:8080`) matches how a small static+API demo is usually shipped. The frontend stage uses `node:22-alpine` so Vite 8’s engine range is satisfied in CI-like builds.
 
 ## Explicit non-goals
 

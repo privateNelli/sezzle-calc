@@ -55,7 +55,7 @@ docker build -t fullstack-calculator .
 docker run --rm -p 8080:80 fullstack-calculator
 ```
 
-Open `http://localhost:8080`. Nginx serves the React app and proxies `/api/*` and `/health` to the Go process within the container, so the client uses same-origin API requests.
+Open `http://localhost:8080`. Nginx serves the React app and proxies `/api/*` and `/health` to the Go process on loopback (`CALCULATOR_API_ADDR=127.0.0.1:8080`). The client uses same-origin requests (`VITE_API_BASE_URL` is empty in the image), including a one-shot `GET /health` on load.
 
 ## API
 
@@ -151,7 +151,7 @@ go vet ./...
 - **Minimal dependencies:** Go uses the standard library. React uses Vite, Vitest, and Testing Library. No Redux or router; keypad state is a local engine plus an in-memory API monitor.
 - **Accessible, responsive UI:** Keypad buttons have visible labels and focus states; results use `aria-live`, errors use `role="alert"`. Desktop shows a side history panel plus API status; small screens use a history sheet and an API accordion. JSON responses open in a modal dialog.
 - **Numeric model:** The API uses IEEE 754 `float64`, appropriate for a general arithmetic demo. It is not suitable for currency or other domains that require exact decimal arithmetic.
-- **Single Docker image:** Multi-stage builds compile Go and React independently, then Nginx serves the static UI and reverse-proxies API calls to the Go process on the container loopback interface.
+- **Single Docker image:** Multi-stage builds compile Go (`golang:1.27-alpine`) and React (`node:22-alpine`) independently. Nginx serves the static UI and reverse-proxies `/api/*` and `/health` to the Go process bound to `127.0.0.1:8080`.
 
 ## Prompts used
 
@@ -231,7 +231,21 @@ Cursor executed the accepted plan. The prompt was already in English.
 - **Spanish:** Crea un módulo debajo de history con el estado de los endpoints de la API, y que muestren cuando están siendo llamadas y mostrar última respuesta (JSON, fecha y hora). Para desktop, para móvil debajo de la calculadora usar un módulo accordion con esto dentro; en ambos debe mostrar el JSON en un popup formateado.
 - **English:** Create a module under history with API endpoint status: show when endpoints are being called, and show the last response (JSON, date, and time). On desktop keep it under history; on mobile put it in an accordion under the calculator. In both layouts, show the JSON in a formatted popup.
 
-**Output:** In-memory monitor in `api/monitor.ts`, wired from the HTTP client. Desktop: API list under history. Mobile: “API endpoints” accordion. “View JSON response” opens a dialog with pretty-printed JSON. `GET /health` is listed but the SPA does not call it, so that row stays idle unless a call is recorded.
+**Output:** In-memory monitor in `api/monitor.ts`, wired from the HTTP client. Desktop: API list under history. Mobile: “API endpoints” accordion. “View JSON response” opens a dialog with pretty-printed JSON. At that point `GET /health` was listed but the SPA did not call it.
+
+### 11. Automatic health probe
+
+- **Spanish:** El endpoint health debería gatillarse automáticamente.
+- **English:** The health endpoint should fire automatically.
+
+**Output:** `App` calls `getHealth()` once on mount (in parallel with the catalog). Failures update the monitor only; they do not block the keypad. No interval polling. Tests cover the client and the mount path.
+
+### 12. Production build and Dockerfile
+
+- **Spanish:** Haz el build y actualiza el Dockerfile.
+- **English:** Run the build and update the Dockerfile.
+
+**Output:** Local `npm run build` and `go build` succeeded. Frontend builder image moved to `node:22-alpine`. Runtime sets `CALCULATOR_API_ADDR=127.0.0.1:8080` so the API stays on loopback behind Nginx. `docker build -t fullstack-calculator .` completed.
 
 ## Repository publication
 

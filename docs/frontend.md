@@ -95,7 +95,7 @@ Layout:
 
 ## Environment
 
-`VITE_API_BASE_URL` defaults to `http://localhost:8080` when unset. Docker builds it as an empty string so fetches are same-origin (`/api/v1/...`).
+`VITE_API_BASE_URL` defaults to `http://localhost:8080` when unset. Docker builds it as an empty string so fetches are same-origin (`/health`, `/api/v1/...`).
 
 Copy `frontend/.env.example` to `frontend/.env` for local Vite.
 

@@ -6,7 +6,7 @@ RUN go mod download
 COPY backend/ ./
 RUN CGO_ENABLED=0 GOOS=linux go build -o /calculator-api ./cmd/server
 
-FROM node:20-alpine AS frontend-builder
+FROM node:22-alpine AS frontend-builder
 
 WORKDIR /src/frontend
 COPY frontend/package.json frontend/package-lock.json ./
@@ -17,6 +17,8 @@ ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 RUN npm run build
 
 FROM nginx:1.29-alpine
+
+ENV CALCULATOR_API_ADDR=127.0.0.1:8080
 
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker/entrypoint.sh /entrypoint.sh

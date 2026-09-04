@@ -12,7 +12,7 @@ The React app lists these same routes in the API status module. It records live 
 
 ### `GET /health`
 
-Liveness probe. Used by Docker `HEALTHCHECK` through Nginx.
+Liveness probe. The SPA calls this once on mount (`getHealth` in `App`) so the API status row is not idle. A failed probe does not hide the keypad. Docker `HEALTHCHECK` uses the same path through Nginx. There is no interval polling.
 
 **Response `200`**
 

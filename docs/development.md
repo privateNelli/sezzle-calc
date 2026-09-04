@@ -35,7 +35,7 @@ npm run dev
 
 Open the URL Vite prints, usually `http://localhost:5173`.
 
-Do not run `docker run -p 8080:80` at the same time as the local API: both bind port 8080 by default (Docker maps host `8080` to container `80`, and the inner API still uses `8080` on loopback only).
+Do not run `docker run -p 8080:80` at the same time as the local API: both use host port 8080 by default (Docker maps host `8080` to container `80`; inside the image the API listens on `127.0.0.1:8080` only).
 
 ## Frontend iteration vs Docker
 

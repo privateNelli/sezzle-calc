@@ -55,5 +55,5 @@ npm run build
 ## What is intentionally untested
 
 - Pixel-perfect iOS visuals
-- Nginx / `entrypoint.sh` as automated tests (verified when the image was added)
+- Nginx / `entrypoint.sh` as automated tests (`docker build -t fullstack-calculator .` is the production check)
 - Cross-browser matrix
